@@ -7,10 +7,13 @@ import eu.hansolo.toolboxfx.geom.Location;
 
 
 public class LocationChangeEvt extends ChangeEvt {
-    public static final EvtType<LocationChangeEvt> ANY              = new EvtType<>(ChangeEvt.ANY, "ANY");
-    public static final EvtType<LocationChangeEvt> LOCATION_CHANGED = new EvtType<>(LocationChangeEvt.ANY, "LOCATION_CHANGED");
-    public static final EvtType<LocationChangeEvt> ALTITUDE_CHANGED = new EvtType<>(LocationChangeEvt.ANY, "ALTITUDE_CHANGED");
-    public static final EvtType<LocationChangeEvt> ACCURACY_CHANGED = new EvtType<>(LocationChangeEvt.ANY, "ACCURACY_CHANGED");
+    public static final EvtType<LocationChangeEvt> ANY                = new EvtType<>(ChangeEvt.ANY, "ANY");
+    public static final EvtType<LocationChangeEvt> LOCATION_CHANGED   = new EvtType<>(LocationChangeEvt.ANY, "LOCATION_CHANGED");
+    public static final EvtType<LocationChangeEvt> ALTITUDE_CHANGED   = new EvtType<>(LocationChangeEvt.ANY, "ALTITUDE_CHANGED");
+    public static final EvtType<LocationChangeEvt> ACCURACY_CHANGED   = new EvtType<>(LocationChangeEvt.ANY, "ACCURACY_CHANGED");
+    public static final EvtType<LocationChangeEvt> FILL_CHANGED       = new EvtType<>(LocationChangeEvt.ANY, "FILL_CHANGED");
+    public static final EvtType<LocationChangeEvt> STROKE_CHANGED     = new EvtType<>(LocationChangeEvt.ANY, "STROKE_CHANGED");
+    public static final EvtType<LocationChangeEvt> ZOOM_LEVEL_CHANGED = new EvtType<>(LocationChangeEvt.ANY, "ZOOM_LEVEL_CHANGED");
 
     private final Location oldLocation;
     private final Location location;

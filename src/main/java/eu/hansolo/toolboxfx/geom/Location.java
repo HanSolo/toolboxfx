@@ -1,9 +1,16 @@
 package eu.hansolo.toolboxfx.geom;
 
+import eu.hansolo.toolbox.Helper;
 import eu.hansolo.toolbox.evt.EvtObserver;
 import eu.hansolo.toolbox.evt.EvtType;
 import eu.hansolo.toolboxfx.Constants;
+import eu.hansolo.toolboxfx.HelperFX;
 import eu.hansolo.toolboxfx.evt.type.LocationChangeEvt;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ObjectPropertyBase;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -30,14 +37,26 @@ public class Location {
     private       double                                             accuracy;
     private       String                                             name;
     private       String                                             info;
+    private       Color                                              _fill;
+    private       ObjectProperty<Color>                              fill;
+    private       Color                                              _stroke;
+    private       ObjectProperty<Color>                              stroke;
+    private       int                                                zoomLevel;
+    private       EventHandler<MouseEvent>                           mouseEnterHandler;
+    private       EventHandler<MouseEvent>                           mousePressHandler;
+    private       EventHandler<MouseEvent>                           mouseReleaseHandler;
+    private       EventHandler<MouseEvent>                           mouseExitHandler;
     private       Map<EvtType, List<EvtObserver<LocationChangeEvt>>> observers;
 
 
     // ******************** Constructors **************************************
-    public Location (final double latitude, final double longitude) {
-        this(Instant.now(), latitude, longitude, 0, 1, "", "");
+    public Location() {
+        this(Instant.now(), 0, 0, 0, 1, "", "", Color.BLUE, Color.TRANSPARENT);
     }
-    public Location(final Instant timestamp, final double latitude, final double longitude, final double altitude, final double accuracy, final String name, final String info) {
+    public Location (final double latitude, final double longitude) {
+        this(Instant.now(), latitude, longitude, 0, 1, "", "", Color.BLUE, Color.TRANSPARENT);
+    }
+    public Location(final Instant timestamp, final double latitude, final double longitude, final double altitude, final double accuracy, final String name, final String info, final Color fill, final Color stroke) {
         this.id        = UUID.randomUUID().toString();
         this.timestamp = timestamp;
         this.latitude  = latitude;
@@ -46,6 +65,9 @@ public class Location {
         this.accuracy  = accuracy;
         this.name      = name;
         this.info      = info;
+        this.zoomLevel = 15;
+        this._fill     = fill;
+        this._stroke   = stroke;
         this.observers = new ConcurrentHashMap<>();
     }
 
@@ -79,7 +101,11 @@ public class Location {
     }
 
     public double getAccuracy() { return accuracy; }
-    public void setAccuracy(final double accuracy) { this.accuracy = accuracy; }
+    public void setAccuracy(final double accuracy) {
+        final Location oldLocation = getCopy();
+        this.accuracy = accuracy;
+        fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.ACCURACY_CHANGED, oldLocation, Location.this));
+    }
 
     public String getName() { return name; }
     public void setName(final String name) { this.name = name; }
@@ -87,8 +113,63 @@ public class Location {
     public String getInfo() { return info; }
     public void setInfo(final String info) { this.info = info; }
 
+    public Color getFill() { return null == fill ? _fill : fill.get(); }
+    public void setFill(final Color fill) {
+        if (null == this.fill) {
+            final Location oldLocation = getCopy();
+            _fill = fill;
+            fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.FILL_CHANGED, oldLocation, Location.this));
+        } else {
+            this.fill.set(fill);
+        }
+    }
+    public ObjectProperty<Color> fillProperty() {
+        if (null == fill) {
+            fill = new ObjectPropertyBase<>(_fill) {
+                @Override protected void invalidated() {
+                    fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.FILL_CHANGED, null, Location.this));
+                }
+                @Override public Object getBean() { return Location.this; }
+                @Override public String getName() { return "fill"; }
+            };
+            _fill = null;
+        }
+        return fill;
+    }
+
+    public Color getStroke() { return null == stroke ? _stroke : stroke.get(); }
+    public void setStroke(final Color stroke) {
+        if (null == this.stroke) {
+            final Location oldLocation = getCopy();
+            _stroke = stroke;
+            fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.STROKE_CHANGED, oldLocation, Location.this));
+        } else {
+            this.stroke.set(stroke);
+        }
+    }
+    public ObjectProperty<Color> strokeProperty() {
+        if (null == stroke) {
+            stroke = new ObjectPropertyBase<>(_stroke) {
+                @Override protected void invalidated() {
+                    fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.STROKE_CHANGED, null, Location.this));
+                }
+                @Override public Object getBean() { return Location.this; }
+                @Override public String getName() { return "stroke"; }
+            };
+            _stroke = null;
+        }
+        return stroke;
+    }
+
     public LocalDateTime getLocaleDateTime() { return getLocalDateTime(ZoneId.systemDefault()); }
-    public LocalDateTime getLocalDateTime(final ZoneId ZONE_ID) { return LocalDateTime.ofInstant(timestamp, ZONE_ID); }
+    public LocalDateTime getLocalDateTime(final ZoneId zoneId) { return LocalDateTime.ofInstant(timestamp, zoneId); }
+
+    public int getZoomLevel() { return zoomLevel; }
+    public void setZoomLevel(final int level) {
+        final Location oldLocation = getCopy();
+        zoomLevel = Helper.clamp(0, 17, level);
+        fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.ZOOM_LEVEL_CHANGED, oldLocation, Location.this));
+    }
 
     // longitude -> x and latitude -> y
     public Point getAsPoint() { return new Point(longitude, latitude); }
@@ -194,7 +275,7 @@ public class Location {
     }
 
     public Location getCopy() {
-        return new Location(Instant.ofEpochSecond(this.timestamp.getEpochSecond()), this.latitude, this.longitude, this.altitude, this.accuracy, this.name, this.info);
+        return new Location(Instant.ofEpochSecond(this.timestamp.getEpochSecond()), this.latitude, this.longitude, this.altitude, this.accuracy, this.name, this.info, getFill(), getStroke());
     }
 
 
@@ -220,6 +301,19 @@ public class Location {
             observers.get(type).forEach(observer -> observer.handle(evt));
         }
     }
+
+
+    public EventHandler<MouseEvent> getMouseEnterHandler() { return mouseEnterHandler; }
+    public void setMouseEnterHandler(final EventHandler<MouseEvent> handler) { mouseEnterHandler = handler; }
+
+    public EventHandler<MouseEvent> getMousePressHandler() { return mousePressHandler; }
+    public void setMousePressHandler(final EventHandler<MouseEvent> handler) { mousePressHandler = handler; }
+
+    public EventHandler<MouseEvent> getMouseReleaseHandler() { return mouseReleaseHandler; }
+    public void setMouseReleaseHandler(final EventHandler<MouseEvent> handler) { mouseReleaseHandler = handler;  }
+
+    public EventHandler<MouseEvent> getMouseExitHandler() { return mouseExitHandler; }
+    public void setMouseExitHandler(final EventHandler<MouseEvent> handler) { mouseExitHandler = handler; }
 
 
     // ******************** Misc **********************************************
@@ -254,7 +348,10 @@ public class Location {
                                   .append(QUOTES).append("altitude").append(QUOTES).append(COLON).append(altitude).append(COMMA)
                                   .append(QUOTES).append("accuracy").append(QUOTES).append(COLON).append(accuracy).append(COMMA)
                                   .append(QUOTES).append("name").append(QUOTES).append(COLON).append(QUOTES).append(name).append(QUOTES).append(COMMA)
-                                  .append(QUOTES).append("info").append(QUOTES).append(COLON).append(QUOTES).append(info).append(QUOTES)
+                                  .append(QUOTES).append("info").append(QUOTES).append(COLON).append(QUOTES).append(info).append(QUOTES).append(COMMA)
+                                  .append(QUOTES).append("fill").append(QUOTES).append(COLON).append(QUOTES).append(HelperFX.colorToWeb(getFill())).append(QUOTES).append(COMMA)
+                                  .append(QUOTES).append("stroke").append(QUOTES).append(COLON).append(QUOTES).append(HelperFX.colorToWeb(getStroke())).append(QUOTES).append(COMMA)
+                                  .append(QUOTES).append("zoom_level").append(QUOTES).append(COLON).append(zoomLevel)
                                   .append(CURLY_BRACKET_CLOSE)
                                   .toString();
     }

@@ -1002,25 +1002,25 @@ public class HelperFX {
     }
 
 
-    public static final double[] toHSL(final Color COLOR) {
-        return rgbToHSL(COLOR.getRed(), COLOR.getGreen(), COLOR.getBlue());
+    public static final double[] toHSL(final Color color) {
+        return rgbToHSL(color.getRed(), color.getGreen(), color.getBlue());
     }
-    public static final double[] rgbToHSL(final double RED, final double GREEN, final double BLUE) {
+    public static final double[] rgbToHSL(final double red, final double green, final double blue) {
         //	Minimum and Maximum RGB values are used in the HSL calculations
-        double min = Math.min(RED, Math.min(GREEN, BLUE));
-        double max = Math.max(RED, Math.max(GREEN, BLUE));
+        double min = Math.min(red, Math.min(green, blue));
+        double max = Math.max(red, Math.max(green, blue));
 
         //  Calculate the Hue
         double hue = 0;
 
         if (max == min) {
             hue = 0;
-        } else if (max == RED) {
-            hue = ((60 * (GREEN - BLUE) / (max - min)) + 360) % 360;
-        } else if (max == GREEN) {
-            hue = (60 * (BLUE - RED) / (max - min)) + 120;
-        } else if (max == BLUE) {
-            hue = (60 * (RED - GREEN) / (max - min)) + 240;
+        } else if (max == red) {
+            hue = ((60 * (green - blue) / (max - min)) + 360) % 360;
+        } else if (max == green) {
+            hue = (60 * (blue - red) / (max - min)) + 120;
+        } else if (max == blue) {
+            hue = (60 * (red - green) / (max - min)) + 240;
         }
 
         //  Calculate the Luminance
@@ -1068,8 +1068,8 @@ public class HelperFX {
         return p;
     }
 
-    public static final String colorToRGB(final Color COLOR) {
-        String hex      = COLOR.toString().replace("0x", "");
+    public static final String colorToRGB(final Color color) {
+        String hex      = color.toString().replace("0x", "");
         String hexRed   = hex.substring(0, 2).toUpperCase();
         String hexGreen = hex.substring(2, 4).toUpperCase();
         String hexBlue  = hex.substring(4, 6).toUpperCase();
@@ -1081,9 +1081,9 @@ public class HelperFX {
         return String.join("", "colorToRGB(", intRed, ", ", intGreen, ", ", intBlue, ")");
     }
 
-    public static final String colorToRGBA(final Color COLOR) { return colorToRGBA(COLOR, COLOR.getOpacity()); }
-    public static final String colorToRGBA(final Color COLOR, final double ALPHA) {
-        String hex      = COLOR.toString().replace("0x", "");
+    public static final String colorToRGBA(final Color color) { return colorToRGBA(color, color.getOpacity()); }
+    public static final String colorToRGBA(final Color color, final double alpha) {
+        String hex      = color.toString().replace("0x", "");
         String hexRed   = hex.substring(0, 2).toUpperCase();
         String hexGreen = hex.substring(2, 4).toUpperCase();
         String hexBlue  = hex.substring(4, 6).toUpperCase();
@@ -1091,12 +1091,12 @@ public class HelperFX {
         String intRed   = Integer.toString(Integer.parseInt(hexRed, 16));
         String intGreen = Integer.toString(Integer.parseInt(hexGreen, 16));
         String intBlue  = Integer.toString(Integer.parseInt(hexBlue, 16));
-        String alpha    = String.format(Locale.US, "%.3f", clamp(0, 1, ALPHA));
+        String alph     = String.format(Locale.US, "%.3f", clamp(0, 1, alpha));
 
-        return String.join("", "colorToRGBA(", intRed, ", ", intGreen, ", ", intBlue, ",", alpha, ")");
+        return String.join("", "colorToRGBA(", intRed, ", ", intGreen, ", ", intBlue, ",", alph, ")");
     }
 
-    public static final String colorToWeb(final Color COLOR) { return COLOR.toString().replace("0x", "#").substring(0, 7); }
+    public static final String colorToWeb(final Color color) { return color.toString().replace("0x", "#").substring(0, 7); }
 
     public static final String colorToCss(final Color color) {
         return color.toString().replace("0x", "#");
@@ -1107,22 +1107,22 @@ public class HelperFX {
     }
 
     public static final double colorDistance(final Color color1, final Color color2) {
-        final double DELTA_R = (color2.getRed()   - color1.getRed());
-        final double DELTA_G = (color2.getGreen() - color1.getGreen());
-        final double DELTA_B = (color2.getBlue()  - color1.getBlue());
+        final double deltaR = (color2.getRed()   - color1.getRed());
+        final double deltaG = (color2.getGreen() - color1.getGreen());
+        final double deltaB = (color2.getBlue()  - color1.getBlue());
 
-        return Math.sqrt(DELTA_R * DELTA_R + DELTA_G * DELTA_G + DELTA_B * DELTA_B);
+        return Math.sqrt(deltaR * deltaR + deltaG * deltaG + deltaB * deltaB);
     }
 
     public static final double[] colorToYUV(final Color color) {
-        final double WEIGHT_FACTOR_RED   = 0.299;
-        final double WEIGHT_FACTOR_GREEN = 0.587;
-        final double WEIGHT_FACTOR_BLUE  = 0.144;
-        final double U_MAX               = 0.436;
-        final double V_MAX               = 0.615;
-        double y = clamp(0, 1, WEIGHT_FACTOR_RED * color.getRed() + WEIGHT_FACTOR_GREEN * color.getGreen() + WEIGHT_FACTOR_BLUE * color.getBlue());
-        double u = clamp(-U_MAX, U_MAX, U_MAX * ((color.getBlue() - y) / (1 - WEIGHT_FACTOR_BLUE)));
-        double v = clamp(-V_MAX, V_MAX, V_MAX * ((color.getRed() - y) / (1 - WEIGHT_FACTOR_RED)));
+        final double weightFactorRed   = 0.299;
+        final double weightFactorGreen = 0.587;
+        final double weightFactorBlue  = 0.144;
+        final double uMax              = 0.436;
+        final double vMax              = 0.615;
+        double y = clamp(0, 1, weightFactorRed * color.getRed() + weightFactorGreen * color.getGreen() + weightFactorBlue * color.getBlue());
+        double u = clamp(-uMax, uMax, uMax * ((color.getBlue() - y) / (1 - weightFactorBlue)));
+        double v = clamp(-vMax, vMax, vMax * ((color.getRed() - y) / (1 - weightFactorRed)));
         return new double[] { y, u, v };
     }
 

@@ -1,6 +1,7 @@
 import java.text.SimpleDateFormat
 
 plugins {
+    id 'idea'
     id 'java-library'
     id 'maven-publish'
     id 'signing'
@@ -41,7 +42,7 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-swing:${javafxVersion}:${platform}"
-    implementation "eu.hansolo:toolbox:17.0.4"
+    implementation "eu.hansolo:toolbox:17.0.5"
 }
 
 

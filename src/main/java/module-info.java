@@ -12,6 +12,7 @@ module eu.hansolo.toolboxfx {
     requires transitive eu.hansolo.toolbox;
 
     exports eu.hansolo.toolboxfx.font;
+    exports eu.hansolo.toolboxfx.evt.type;
     exports eu.hansolo.toolboxfx.geom;
     exports eu.hansolo.toolboxfx;
 }

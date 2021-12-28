@@ -1,6 +1,7 @@
 package eu.hansolo.toolboxfx.geom;
 
 import eu.hansolo.toolbox.Constants;
+import eu.hansolo.toolboxfx.HelperFX;
 
 import java.util.List;
 
@@ -12,8 +13,9 @@ import static eu.hansolo.toolbox.Constants.QUOTES;
 
 
 public class Point implements Comparable<Point> {
-    public double x;
-    public double y;
+    public double   x;
+    public double   y;
+    private boolean empty;
 
 
     // ******************** Constructors **************************************
@@ -24,8 +26,12 @@ public class Point implements Comparable<Point> {
         this(point.getX(), point.getY());
     }
     public Point(final double x, final double y) {
-        this.x = x;
-        this.y = y;
+        this(x, y, false);
+    }
+    public Point(final double x, final double y, final boolean empty) {
+        this.x     = x;
+        this.y     = y;
+        this.empty = empty;
     }
 
 
@@ -50,16 +56,19 @@ public class Point implements Comparable<Point> {
         this.y = y;
     }
 
+    public boolean isEmpty() { return empty; }
+    public void setEmpty(final boolean isEmpty) { this.empty = isEmpty; }
+
     public void translateBy(final double dx, final double dy) {
         this.x += dx;
         this.y += dy;
     }
 
-    public double euclideanDistanceTo(final Point p) { return euclideanDistance(p.getX(), p.getY(), this.x, this.y); }
-    public double euclideanDistanceTo(final double x, final double y) { return euclideanDistance(x, y, this.x, this.y); }
+    public double euclideanDistanceTo(final Point p) { return HelperFX.euclideanDistance(p.getX(), p.getY(), this.x, this.y); }
+    public double euclideanDistanceTo(final double x, final double y) { return HelperFX.euclideanDistance(x, y, this.x, this.y); }
 
-    public double distanceTo(final Point p) { return distance(p.getX(), p.getY(), x, y); }
-    public double distanceTo(final double x, final double y) { return distance(x, y, this.x, this.y); }
+    public double distanceTo(final Point p) { return HelperFX.distance(p.getX(), p.getY(), x, y); }
+    public double distanceTo(final double x, final double y) { return HelperFX.distance(x, y, this.x, this.y); }
 
     public Point fromPolar(final double length, final double angleRad) {
         return new Point(length * Math.cos(angleRad), length * Math.sin(angleRad));
@@ -152,20 +161,6 @@ public class Point implements Comparable<Point> {
             }
         }
         return p;
-    }
-
-    public static double distance(final Point p1, final Point p2) { return distance(p1.getX(), p1.getY(), p2.getX(), p2.getY()); }
-    public static double distance(final double x1, final double y1, final double x2, final double y2) {
-        double deltaX = (x2 - x1);
-        double deltaY = (y2 - y1);
-        return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
-    }
-
-    public static double euclideanDistance(final Point p1, final Point p2) { return euclideanDistance(p1.getX(), p1.getY(), p2.getX(), p2.getY()); }
-    public static double euclideanDistance(final double x1, final double y1, final double x2, final double y2) {
-        double deltaX = (x2 - x1);
-        double deltaY = (y2 - y1);
-        return (deltaX * deltaX) + (deltaY * deltaY);
     }
 
     public static double dotProductLength(final Point p1, final Point p2) { return p1.getX() * p2.getX() + p1.getY() * p2.getY(); }

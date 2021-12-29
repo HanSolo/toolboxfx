@@ -69,7 +69,7 @@ public class Location {
         this.zoomLevel   = 15;
         this._fill       = fill;
         this._stroke     = stroke;
-        this.oldLocation = new Location();
+        this.oldLocation = null;
         this.observers   = new ConcurrentHashMap<>();
     }
 

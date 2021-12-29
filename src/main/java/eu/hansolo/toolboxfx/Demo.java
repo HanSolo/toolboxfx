@@ -19,12 +19,14 @@
 package eu.hansolo.toolboxfx;
 
 import eu.hansolo.toolboxfx.evt.type.LocationChangeEvt;
+import eu.hansolo.toolboxfx.geom.Bounds;
 import eu.hansolo.toolboxfx.geom.Location;
 
 
 public class Demo {
 
     public Demo() {
+        Bounds bounds = new Bounds();
         locationDemo();
     }
 

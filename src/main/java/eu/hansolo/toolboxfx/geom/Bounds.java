@@ -54,8 +54,8 @@ public class Bounds {
         this(0, 0, width, height);
     }
     public Bounds(final double x, final double y, final double width, final double height) {
-        set(x, y, width, height);
         observers = new ConcurrentHashMap<>();
+        set(x, y, width, height);
     }
 
 

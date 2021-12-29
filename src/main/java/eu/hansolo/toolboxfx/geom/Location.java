@@ -42,6 +42,7 @@ public class Location {
     private       Color                                              _stroke;
     private       ObjectProperty<Color>                              stroke;
     private       int                                                zoomLevel;
+    private       Location                                           oldLocation;
     private       EventHandler<MouseEvent>                           mouseEnterHandler;
     private       EventHandler<MouseEvent>                           mousePressHandler;
     private       EventHandler<MouseEvent>                           mouseReleaseHandler;
@@ -57,18 +58,19 @@ public class Location {
         this(Instant.now(), latitude, longitude, 0, 1, "", "", Color.BLUE, Color.TRANSPARENT);
     }
     public Location(final Instant timestamp, final double latitude, final double longitude, final double altitude, final double accuracy, final String name, final String info, final Color fill, final Color stroke) {
-        this.id        = UUID.randomUUID().toString();
-        this.timestamp = timestamp;
-        this.latitude  = latitude;
-        this.longitude = longitude;
-        this.altitude  = altitude;
-        this.accuracy  = accuracy;
-        this.name      = name;
-        this.info      = info;
-        this.zoomLevel = 15;
-        this._fill     = fill;
-        this._stroke   = stroke;
-        this.observers = new ConcurrentHashMap<>();
+        this.id          = UUID.randomUUID().toString();
+        this.timestamp   = timestamp;
+        this.latitude    = latitude;
+        this.longitude   = longitude;
+        this.altitude    = altitude;
+        this.accuracy    = accuracy;
+        this.name        = name;
+        this.info        = info;
+        this.zoomLevel   = 15;
+        this._fill       = fill;
+        this._stroke     = stroke;
+        this.oldLocation = getCopy();
+        this.observers   = new ConcurrentHashMap<>();
     }
 
 
@@ -77,12 +79,19 @@ public class Location {
 
     public Instant getTimestamp() { return timestamp; }
     public long getTimestampInSeconds() { return timestamp.getEpochSecond(); }
-    public void setTimestamp(final Instant timestamp) { this.timestamp = timestamp; }
+    public void setTimestamp(final Instant timestamp) {
+        this.oldLocation = getCopy();
+        this.timestamp   = timestamp;
+        fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.TIMESTAMP_CHANGED, oldLocation, Location.this));
+    }
+
+    public LocalDateTime getLocaleDateTime() { return getLocalDateTime(ZoneId.systemDefault()); }
+    public LocalDateTime getLocalDateTime(final ZoneId zoneId) { return LocalDateTime.ofInstant(timestamp, zoneId); }
 
     public double getLatitude() { return latitude; }
     public void setLatitude(final double latitude) {
-        final Location oldLocation = getCopy();
-        this.latitude        = latitude;
+        this.oldLocation = getCopy();
+        this.latitude    = latitude;
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
 
@@ -95,29 +104,37 @@ public class Location {
 
     public double getAltitude() { return altitude; }
     public void setAltitude(final double altitude) {
-        final Location oldLocation = getCopy();
-        this.altitude = altitude;
+        this.oldLocation = getCopy();
+        this.altitude    = altitude;
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
 
     public double getAccuracy() { return accuracy; }
     public void setAccuracy(final double accuracy) {
-        final Location oldLocation = getCopy();
-        this.accuracy = accuracy;
+        this.oldLocation = getCopy();
+        this.accuracy    = accuracy;
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.ACCURACY_CHANGED, oldLocation, Location.this));
     }
 
     public String getName() { return name; }
-    public void setName(final String name) { this.name = name; }
+    public void setName(final String name) {
+        this.oldLocation = getCopy();
+        this.name        = name;
+        fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.NAME_CHANGED, oldLocation, Location.this));
+    }
 
     public String getInfo() { return info; }
-    public void setInfo(final String info) { this.info = info; }
+    public void setInfo(final String info) {
+        this.oldLocation = getCopy();
+        this.info        = info;
+        fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.INFO_CHANGED, oldLocation, Location.this));
+    }
 
     public Color getFill() { return null == fill ? _fill : fill.get(); }
     public void setFill(final Color fill) {
+        oldLocation = getCopy();
         if (null == this.fill) {
-            final Location oldLocation = getCopy();
-            _fill = fill;
+            _fill       = fill;
             fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.FILL_CHANGED, oldLocation, Location.this));
         } else {
             this.fill.set(fill);
@@ -127,7 +144,11 @@ public class Location {
         if (null == fill) {
             fill = new ObjectPropertyBase<>(_fill) {
                 @Override protected void invalidated() {
-                    fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.FILL_CHANGED, null, Location.this));
+                    fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.FILL_CHANGED, oldLocation, Location.this));
+                }
+                @Override public void set(final Color color) {
+                    oldLocation = getCopy();
+                    super.set(color);
                 }
                 @Override public Object getBean() { return Location.this; }
                 @Override public String getName() { return "fill"; }
@@ -139,9 +160,9 @@ public class Location {
 
     public Color getStroke() { return null == stroke ? _stroke : stroke.get(); }
     public void setStroke(final Color stroke) {
+        oldLocation = getCopy();
         if (null == this.stroke) {
-            final Location oldLocation = getCopy();
-            _stroke = stroke;
+            _stroke     = stroke;
             fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.STROKE_CHANGED, oldLocation, Location.this));
         } else {
             this.stroke.set(stroke);
@@ -151,7 +172,11 @@ public class Location {
         if (null == stroke) {
             stroke = new ObjectPropertyBase<>(_stroke) {
                 @Override protected void invalidated() {
-                    fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.STROKE_CHANGED, null, Location.this));
+                    fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.STROKE_CHANGED, oldLocation, Location.this));
+                }
+                @Override public void set(final Color color) {
+                    oldLocation = getCopy();
+                    super.set(color);
                 }
                 @Override public Object getBean() { return Location.this; }
                 @Override public String getName() { return "stroke"; }
@@ -161,13 +186,10 @@ public class Location {
         return stroke;
     }
 
-    public LocalDateTime getLocaleDateTime() { return getLocalDateTime(ZoneId.systemDefault()); }
-    public LocalDateTime getLocalDateTime(final ZoneId zoneId) { return LocalDateTime.ofInstant(timestamp, zoneId); }
-
     public int getZoomLevel() { return zoomLevel; }
     public void setZoomLevel(final int level) {
-        final Location oldLocation = getCopy();
-        zoomLevel = Helper.clamp(0, 17, level);
+        this.oldLocation = getCopy();
+        this.zoomLevel   = Helper.clamp(0, 17, level);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.ZOOM_LEVEL_CHANGED, oldLocation, Location.this));
     }
 
@@ -277,6 +299,8 @@ public class Location {
     public Location getCopy() {
         return new Location(Instant.ofEpochSecond(this.timestamp.getEpochSecond()), this.latitude, this.longitude, this.altitude, this.accuracy, this.name, this.info, getFill(), getStroke());
     }
+
+    public void dispose() { removeAllObservers(); }
 
 
     // ******************** Event handling ************************************

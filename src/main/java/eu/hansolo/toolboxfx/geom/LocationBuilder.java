@@ -53,6 +53,11 @@ public class LocationBuilder<B extends LocationBuilder<B>> {
         return (B) this;
     }
 
+    public final B accuracy(final double accuracy) {
+        properties.put("accuracy", new SimpleDoubleProperty(accuracy));
+        return (B)this;
+    }
+
     public final B info(final String info) {
         properties.put("info", new SimpleStringProperty(info));
         return (B) this;
@@ -86,6 +91,8 @@ public class LocationBuilder<B extends LocationBuilder<B>> {
                 location.setLongitude(((DoubleProperty) properties.get(key)).get());
             } else if ("altitude".equals(key)) {
                 location.setAltitude(((DoubleProperty) properties.get(key)).get());
+            } else if ("accuracy".equals(key)) {
+                location.setAccuracy(((DoubleProperty) properties.get(key)).get());
             } else if ("info".equals(key)) {
                 location.setInfo(((StringProperty) properties.get(key)).get());
             } else if ("fill".equals(key)) {

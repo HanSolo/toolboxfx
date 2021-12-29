@@ -8,6 +8,9 @@ import eu.hansolo.toolboxfx.geom.Location;
 
 public class LocationChangeEvt extends ChangeEvt {
     public static final EvtType<LocationChangeEvt> ANY                = new EvtType<>(ChangeEvt.ANY, "ANY");
+    public static final EvtType<LocationChangeEvt> TIMESTAMP_CHANGED  = new EvtType<>(LocationChangeEvt.ANY, "TIMESTAMP_CHANGED");
+    public static final EvtType<LocationChangeEvt> NAME_CHANGED       = new EvtType<>(LocationChangeEvt.ANY, "NAME_CHANGED");
+    public static final EvtType<LocationChangeEvt> INFO_CHANGED       = new EvtType<>(LocationChangeEvt.ANY, "INFO_CHANGED");
     public static final EvtType<LocationChangeEvt> LOCATION_CHANGED   = new EvtType<>(LocationChangeEvt.ANY, "LOCATION_CHANGED");
     public static final EvtType<LocationChangeEvt> ALTITUDE_CHANGED   = new EvtType<>(LocationChangeEvt.ANY, "ALTITUDE_CHANGED");
     public static final EvtType<LocationChangeEvt> ACCURACY_CHANGED   = new EvtType<>(LocationChangeEvt.ANY, "ACCURACY_CHANGED");

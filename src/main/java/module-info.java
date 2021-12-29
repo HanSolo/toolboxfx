@@ -15,4 +15,5 @@ module eu.hansolo.toolboxfx {
     exports eu.hansolo.toolboxfx.evt.type;
     exports eu.hansolo.toolboxfx.geom;
     exports eu.hansolo.toolboxfx;
+    exports eu.hansolo.toolboxfx.heatmap;
 }

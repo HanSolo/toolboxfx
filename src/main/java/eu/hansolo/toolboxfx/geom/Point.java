@@ -64,6 +64,11 @@ public class Point implements Comparable<Point> {
         this.y += dy;
     }
 
+    public void scaleBy(final double sx, final double sy) {
+        this.x *= sx;
+        this.y *= sy;
+    }
+
     public double euclideanDistanceTo(final Point p) { return HelperFX.euclideanDistance(p.getX(), p.getY(), this.x, this.y); }
     public double euclideanDistanceTo(final double x, final double y) { return HelperFX.euclideanDistance(x, y, this.x, this.y); }
 

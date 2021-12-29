@@ -19,6 +19,7 @@
 package eu.hansolo.toolboxfx.geom;
 
 import eu.hansolo.toolbox.Helper;
+import eu.hansolo.toolbox.evt.Evt;
 import eu.hansolo.toolbox.evt.EvtObserver;
 import eu.hansolo.toolbox.evt.EvtType;
 import eu.hansolo.toolboxfx.Constants;
@@ -322,12 +323,12 @@ public class Location {
 
 
     // ******************** Event handling ************************************
-    public void addLocationObserver(final EvtType type, final EvtObserver<LocationChangeEvt> observer) {
+    public void addLocationObserver(final EvtType<? extends Evt> type, final EvtObserver<LocationChangeEvt> observer) {
         if (!observers.containsKey(type)) { observers.put(type, new CopyOnWriteArrayList<>()); }
         if (observers.get(type).contains(observer)) { return; }
         observers.get(type).add(observer);
     }
-    public void removeLocationObserver(final LocationChangeEvt type, final EvtObserver<LocationChangeEvt> observer) {
+    public void removeLocationObserver(final EvtType<? extends Evt> type, final EvtObserver<LocationChangeEvt> observer) {
         if (observers.containsKey(type)) {
             if (observers.get(type).contains(observer)) {
                 observers.get(type).remove(observer);

@@ -69,6 +69,9 @@ public class ConicalGradient {
     public ConicalGradient(final double CENTER_X, final double CENTER_Y, final ScaleDirection DIRECTION, final List<Stop> STOPS) {
         this(CENTER_X, CENTER_Y, 0.0, DIRECTION, STOPS);
     }
+    public ConicalGradient(final double CENTER_X, final double CENTER_Y, final double OFFSET, final Stop... STOPS) {
+        this(CENTER_X, CENTER_Y, OFFSET, ScaleDirection.CLOCKWISE, Arrays.asList(STOPS));
+    }
     public ConicalGradient(final double CENTER_X, final double CENTER_Y, final double OFFSET, final ScaleDirection DIRECTION, final Stop... STOPS) {
         this(CENTER_X, CENTER_Y, OFFSET, DIRECTION, Arrays.asList(STOPS));
     }

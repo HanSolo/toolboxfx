@@ -19,8 +19,16 @@
 package eu.hansolo.toolboxfx.geom;
 
 import eu.hansolo.toolbox.Helper;
+import eu.hansolo.toolbox.evt.Evt;
+import eu.hansolo.toolbox.evt.EvtObserver;
+import eu.hansolo.toolbox.evt.EvtType;
+import eu.hansolo.toolboxfx.evt.type.BoundsEvt;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static eu.hansolo.toolbox.Constants.COLON;
 import static eu.hansolo.toolbox.Constants.COMMA;
@@ -30,10 +38,12 @@ import static eu.hansolo.toolbox.Constants.QUOTES;
 
 
 public class Bounds {
-    private double x;
-    private double y;
-    private double width;
-    private double height;
+    private double                                     x;
+    private double                                     y;
+    private double                                     width;
+    private double                                     height;
+    private Map<EvtType, List<EvtObserver<BoundsEvt>>> observers;
+
 
 
     // ******************** Constructors **************************************
@@ -45,15 +55,22 @@ public class Bounds {
     }
     public Bounds(final double x, final double y, final double width, final double height) {
         set(x, y, width, height);
+        observers = new ConcurrentHashMap<>();
     }
 
 
     // ******************** Methods *******************************************
     public double getX() { return x; }
-    public void setX(final double x) { this.x = x; }
+    public void setX(final double x) {
+        this.x = x;
+        fireBoundsEvt(new BoundsEvt(Bounds.this, BoundsEvt.BOUNDS, Bounds.this));
+    }
 
     public double getY() { return y; }
-    public void setY(final double y) { this.y = y; }
+    public void setY(final double y) {
+        this.y = y;
+        fireBoundsEvt(new BoundsEvt(Bounds.this, BoundsEvt.BOUNDS, Bounds.this));
+    }
 
     public double getMinX() { return x; }
     public double getMaxX() { return x + width; }
@@ -62,10 +79,16 @@ public class Bounds {
     public double getMaxY() { return y + height; }
 
     public double getWidth() { return width; }
-    public void setWidth(final double width) { this.width = Helper.clamp(0, Double.MAX_VALUE, width); }
+    public void setWidth(final double width) {
+        this.width = Helper.clamp(0, Double.MAX_VALUE, width);
+        fireBoundsEvt(new BoundsEvt(Bounds.this, BoundsEvt.BOUNDS, Bounds.this));
+    }
 
     public double getHeight() { return height; }
-    public void setHeight(final double height) { this.height = Helper.clamp(0, Double.MAX_VALUE, height); }
+    public void setHeight(final double height) {
+        this.height = Helper.clamp(0, Double.MAX_VALUE, height);
+        fireBoundsEvt(new BoundsEvt(Bounds.this, BoundsEvt.BOUNDS, Bounds.this));
+    }
 
     public double getCenterX() { return x + width * 0.5; }
     public double getCenterY() { return y + height * 0.5; }
@@ -78,6 +101,7 @@ public class Bounds {
         this.y      = y;
         this.width  = width;
         this.height = height;
+        fireBoundsEvt(new BoundsEvt(Bounds.this, BoundsEvt.BOUNDS, Bounds.this));
     }
 
     public boolean contains(final double x, final double y) {
@@ -96,6 +120,32 @@ public class Bounds {
 
     public Bounds copy() { return new Bounds(x, y, width, height); }
 
+
+    // ******************** Event handling ************************************
+    public void addBoundsObserver(final EvtType<? extends Evt> type, final EvtObserver<BoundsEvt> observer) {
+        if (!observers.containsKey(type)) { observers.put(type, new CopyOnWriteArrayList<>()); }
+        if (observers.get(type).contains(observer)) { return; }
+        observers.get(type).add(observer);
+    }
+    public void removeBoundsObserver(final EvtType<? extends Evt> type, final EvtObserver<BoundsEvt> observer) {
+        if (observers.containsKey(type)) {
+            if (observers.get(type).contains(observer)) {
+                observers.get(type).remove(observer);
+            }
+        }
+    }
+    public void removeAllBoundsObservers() { observers.clear(); }
+
+    public void fireBoundsEvt(final BoundsEvt evt) {
+        final EvtType type = evt.getEvtType();
+        observers.entrySet().stream().filter(entry -> entry.getKey().equals(BoundsEvt.ANY)).forEach(entry -> entry.getValue().forEach(observer -> observer.handle(evt)));
+        if (observers.containsKey(type)) {
+            observers.get(type).forEach(observer -> observer.handle(evt));
+        }
+    }
+
+
+    // ******************** Misc **********************************************
     @Override public boolean equals(final Object obj) {
         if (obj == this) return true;
         if (obj instanceof Bounds) {

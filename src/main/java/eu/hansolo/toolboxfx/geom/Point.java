@@ -74,6 +74,7 @@ public class Point implements Comparable<Point> {
 
     public double distanceTo(final Point p) { return HelperFX.distance(p.getX(), p.getY(), x, y); }
     public double distanceTo(final double x, final double y) { return HelperFX.distance(x, y, this.x, this.y); }
+    public double distanceSquareTo(final Point p) { return HelperFX.squareDistance(p.getX(), p.getY(), x, y); }
 
     public Point fromPolar(final double length, final double angleRad) {
         return new Point(length * Math.cos(angleRad), length * Math.sin(angleRad));
@@ -144,7 +145,6 @@ public class Point implements Comparable<Point> {
     public double crossProductLength(final double x, final double y) {
         return (this.x * y - x * this.y);
     }
-
 
     public static Point nearestWithinRadius(final Point point, final List<Point> points, final double radius) {
         final double radiusSquare = radius * radius;

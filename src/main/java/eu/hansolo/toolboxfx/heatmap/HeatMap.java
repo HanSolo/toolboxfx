@@ -31,17 +31,17 @@ import java.util.Map;
 
 public class HeatMap extends ImageView {
     private static final SnapshotParameters SNAPSHOT_PARAMETERS = new SnapshotParameters();
-    private              int                width;
-    private              int                height;
-    private              double             oldWidth;
-    private              double             oldHeight;
-    private              double             scaleX;
-    private              double             scaleY;
-    private              List<Point>        spotList;
-    private              Map<String, Image> spotImages;
-    private              Mapping            colorMapping;
-    private              LinearGradient     mappingGradient;
-    private              boolean            fadeColors;
+    private              int                 width;
+    private              int                 height;
+    private              double              oldWidth;
+    private              double              oldHeight;
+    private              double              scaleX;
+    private              double              scaleY;
+    private              List<Point>         spotList;
+    private              Map<String, Image>  spotImages;
+    private              Mapping             colorMapping;
+    private              LinearGradient      mappingGradient;
+    private              boolean             fadeColors;
     private              double              spotRadius;
     private              OpacityDistribution opacityDistribution;
     private              Image               spotImage;

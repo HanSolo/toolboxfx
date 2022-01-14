@@ -40,6 +40,7 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorInput;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -71,6 +72,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -1572,7 +1574,9 @@ public class HelperFX {
     public static final LocalDateTime secondsToLocalDateTime(final long seconds, final ZoneId zoneId) { return LocalDateTime.ofInstant(Instant.ofEpochSecond(seconds), zoneId); }
 
     public static final void saveAsPng(final Node node, final String fileName) {
-        final WritableImage snapshot = node.snapshot(new SnapshotParameters(), null);
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setFill(Color.TRANSPARENT);
+        final WritableImage snapshot = node.snapshot(parameters, null);
         final String        name     = fileName.replace("\\.[a-zA-Z]{3,4}", "");
         final File          file     = new File(name + ".png");
 
@@ -1581,5 +1585,26 @@ public class HelperFX {
         } catch (IOException exception) {
             // handle exception here
         }
+    }
+
+    public static final Image createNoiseImage(final double width, final double height, final Color darkColor, final Color brightColor, final double alphaVariationInPercent) {
+        if (Double.compare(width, 0) <= 0 || Double.compare(height, 0) <= 0) return null;
+        int                 w              = (int) width;
+        int                 h              = (int) height;
+        double              alphaVariation = clamp(0.0, 100.0, alphaVariationInPercent);
+        final WritableImage image         = new WritableImage(w, h);
+        final PixelWriter   pixelWriter   = image.getPixelWriter();
+        final Random        rndBlackWhite = new Random();
+        final Random        rndAlpha      = new Random();
+        final double        alphaStart     = alphaVariation / 100 / 2;
+        final double        variation      = alphaVariation / 100;
+        for (int y = 0 ; y < h ; y++) {
+            for (int x = 0 ; x < w ; x++) {
+                final Color  noiseColor = rndBlackWhite.nextBoolean() ? brightColor : darkColor;
+                final double noiseAlpha = clamp(0.0, 1.0, alphaStart + rndAlpha.nextDouble() * variation);
+                pixelWriter.setColor(x, y, Color.color(noiseColor.getRed(), noiseColor.getGreen(), noiseColor.getBlue(), noiseAlpha));
+            }
+        }
+        return image;
     }
 }

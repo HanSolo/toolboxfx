@@ -42,7 +42,8 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-swing:${javafxVersion}:${platform}"
-    implementation "eu.hansolo:toolbox:17.0.9"
+    implementation "eu.hansolo:jdktools:17.0.2"
+    implementation "eu.hansolo:toolbox:17.0.11"
 }
 
 
@@ -131,7 +132,7 @@ publishing {
             }
 
             pom {
-                name = 'EVT'
+                name = 'ToolboxFX'
                 description = 'ToolboxFX contains a collection of useful tools'
                 url = "https://github.com/HanSolo/toolboxfx/wiki"
                 licenses {

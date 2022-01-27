@@ -25,10 +25,10 @@ public class CatmullRom<T extends Point> {
 
     // ******************** Constructors **************************************
     public CatmullRom(final T P0, final T P1, final T P2, final T P3) {
-        assert P0 != null : "p0 cannot be null";
-        assert P1 != null : "p1 cannot be null";
-        assert P2 != null : "p2 cannot be null";
-        assert P3 != null : "p3 cannot be null";
+        if (P0 == null) { throw new AssertionError("p0 cannot be null"); }
+        if (P1 == null) { throw new AssertionError("p1 cannot be null"); }
+        if (P2 == null) { throw new AssertionError("p2 cannot be null"); }
+        if (P3 == null) { throw new AssertionError("p3 cannot be null"); }
 
         splineXValues = new CatmullRomSpline(P0.getX(), P1.getX(), P2.getX(), P3.getX());
         splineYValues = new CatmullRomSpline(P0.getY(), P1.getY(), P2.getY(), P3.getY());

@@ -23,6 +23,8 @@ import eu.hansolo.toolbox.evt.EvtType;
 import eu.hansolo.toolbox.evt.type.ChangeEvt;
 import eu.hansolo.toolboxfx.geom.Location;
 
+import java.util.Objects;
+
 
 public class LocationChangeEvt extends ChangeEvt {
     public static final EvtType<LocationChangeEvt> ANY                = new EvtType<>(ChangeEvt.ANY, "ANY");
@@ -59,9 +61,21 @@ public class LocationChangeEvt extends ChangeEvt {
 
 
     // ******************** Methods *******************************************
-    public EvtType<? extends LocationChangeEvt> getEvtType() { return (EvtType<? extends LocationChangeEvt>) super.getEvtType(); }
+    @Override public EvtType<? extends LocationChangeEvt> getEvtType() { return (EvtType<? extends LocationChangeEvt>) super.getEvtType(); }
 
     public Location getOldLocation() { return oldLocation; }
 
     public Location getLocation() { return location; }
+
+    @Override public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        if (!super.equals(o)) { return false; }
+        LocationChangeEvt that = (LocationChangeEvt) o;
+        return Objects.equals(oldLocation, that.oldLocation) && Objects.equals(location, that.location);
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(super.hashCode(), oldLocation, location);
+    }
 }

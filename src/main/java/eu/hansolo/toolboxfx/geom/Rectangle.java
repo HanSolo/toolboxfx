@@ -18,6 +18,8 @@
 
 package eu.hansolo.toolboxfx.geom;
 
+import java.util.Objects;
+
 import static eu.hansolo.toolbox.Constants.COLON;
 import static eu.hansolo.toolbox.Constants.COMMA;
 import static eu.hansolo.toolbox.Constants.CURLY_BRACKET_CLOSE;
@@ -126,6 +128,10 @@ public class Rectangle {
                     Double.compare(width, rectangle.width) == 0 && Double.compare(height, rectangle.height) == 0);
         }
         return false;
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(x, y, width, height);
     }
 
     @Override public String toString() {

@@ -84,6 +84,9 @@ import static eu.hansolo.toolbox.Helper.round;
 
 public class HelperFX {
 
+    private HelperFX(){}
+
+
     public static final double nearest(final double smaller, final double value, final double larger) {
         return (value - smaller) < (larger - value) ? smaller : larger;
     }
@@ -486,8 +489,7 @@ public class HelperFX {
         double ny          = deltaY / radius;
         double theta       = Math.atan2(ny, nx);
         theta              = Double.compare(theta, 0.0) >= 0 ? Math.toDegrees(theta) : Math.toDegrees((theta)) + 360.0;
-        double angle       = (theta + angleOffset) % 360;
-        return angle;
+        return (theta + angleOffset) % 360;
     }
 
     public static final double[] rotatePointAroundRotationCenter(final double x, final double y, final double rX, final double rY, final double angleDeg) {
@@ -515,7 +517,7 @@ public class HelperFX {
 
     public static final <T extends Point> List<T> createConvexHull_OLD(final List<T> points) {
         List<T> convexHull = new ArrayList<>();
-        if (points.size() < 3) { return new ArrayList<T>(points); }
+        if (points.size() < 3) { return new ArrayList<>(points); }
 
         int minDataPoint = -1;
         int maxDataPoint = -1;
@@ -572,7 +574,7 @@ public class HelperFX {
     private static final <T extends Point> void hullSet(final T p1, final T p2, final List<T> points, final List<T> hull) {
         int insertPosition = hull.indexOf(p2);
 
-        if (points.size() == 0) { return; }
+        if (points.isEmpty()) { return; }
 
         if (points.size() == 1) {
             T point = points.get(0);
@@ -778,10 +780,8 @@ public class HelperFX {
                         double dX = Math.abs(p1.getX() - p2.getX());
                         // Search for next point in vertical direction
                         for (Point p : pointsToCheck) {
-                            if(isInRectangle(p.getX(), p.getY(), p1.getX() - width / 2, p1.getY() - height, p1.getX(), p1.getY())) {
-                                if (isVertical(p, p1)) {
-                                    //System.out.println("Find next vertical point in gap");
-                                }
+                            if (isInRectangle(p.getX(), p.getY(), p1.getX() - width / 2, p1.getY() - height, p1.getX(), p1.getY()) && isVertical(p, p1)) {
+                                //System.out.println("Find next vertical point in gap");
                             }
                         }
                     }
@@ -800,10 +800,8 @@ public class HelperFX {
                         double dX = Math.abs(p1.getX() - p2.getX());
                         // Search for next point in vertical direction
                         for (Point p : pointsToCheck) {
-                            if(isInRectangle(p.getX(), p.getY(), p1.getX() - width / 2, p1.getY() - height, p1.getX() + width, p1.getY())) {
-                                if (isVertical(p, p1)) {
-                                    //System.out.println("Find next vertical point in gap");
-                                }
+                            if (isInRectangle(p.getX(), p.getY(), p1.getX() - width / 2, p1.getY() - height, p1.getX() + width, p1.getY()) && isVertical(p, p1)) {
+                                //System.out.println("Find next vertical point in gap");
                             }
                         }
                     }
@@ -1320,7 +1318,7 @@ public class HelperFX {
         double range = high - low;
 
         double minX  = graphBounds.getX();
-        double maxX  = minX + graphBounds.getWidth();
+        //double maxX  = minX + graphBounds.getWidth();
         double minY  = graphBounds.getY();
         double maxY  = minY + graphBounds.getHeight();
         double stepX = graphBounds.getWidth() / (noOfDatapoints - 1);
@@ -1544,8 +1542,7 @@ public class HelperFX {
         imageView.setEffect(blend);
 
         final SnapshotParameters params = new SnapshotParameters();
-        final WritableImage      result = imageView.snapshot(params, null);
-        return result;
+        return imageView.snapshot(params, null);
     }
 
     public static final Dimension getTextDimension(final String text, final Font font) {
@@ -1554,8 +1551,7 @@ public class HelperFX {
         double textWidth  = t.getBoundsInLocal().getWidth();
         double textHeight = t.getBoundsInLocal().getHeight();
         t = null;
-        Dimension dim = new Dimension(textWidth, textHeight);
-        return dim;
+        return new Dimension(textWidth, textHeight);
     }
 
     public static final ZoneOffset getZoneOffset() { return getZoneOffset(ZoneId.systemDefault()); }

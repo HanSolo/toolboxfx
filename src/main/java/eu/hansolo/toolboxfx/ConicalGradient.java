@@ -258,11 +258,11 @@ public class ConicalGradient {
 
     private List<Stop> calculate(final List<Stop> STOPS, final double OFFSET) {
         List<Stop> stops = new ArrayList<>(STOPS.size());
-        final BigDecimal STEP = new BigDecimal(Double.MIN_VALUE);
+        final BigDecimal STEP = BigDecimal.valueOf(Double.MIN_VALUE);
         for (Stop stop : STOPS) {
             double     offset      = stop.getOffset();
             Color      color       = stop.getColor();
-            BigDecimal newOffsetBD = new BigDecimal(offset + OFFSET).remainder(BigDecimal.ONE);
+            BigDecimal newOffsetBD = BigDecimal.valueOf(offset + OFFSET).remainder(BigDecimal.ONE);
             if (newOffsetBD.equals(BigDecimal.ZERO)) {
                 newOffsetBD = BigDecimal.ONE;
                 stops.add(new Stop(Double.MIN_VALUE, color));

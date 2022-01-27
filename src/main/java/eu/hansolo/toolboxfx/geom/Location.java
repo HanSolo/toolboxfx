@@ -329,10 +329,8 @@ public class Location {
         observers.get(type).add(observer);
     }
     public void removeLocationObserver(final EvtType<? extends Evt> type, final EvtObserver<LocationChangeEvt> observer) {
-        if (observers.containsKey(type)) {
-            if (observers.get(type).contains(observer)) {
-                observers.get(type).remove(observer);
-            }
+        if (observers.containsKey(type) && observers.get(type).contains(observer)) {
+            observers.get(type).remove(observer);
         }
     }
     public void removeAllObservers() { observers.clear(); }

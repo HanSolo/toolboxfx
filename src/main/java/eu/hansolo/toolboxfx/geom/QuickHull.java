@@ -24,6 +24,8 @@ import java.util.List;
 
 public class QuickHull {
 
+    private QuickHull() {}
+
     public static final List<Point> quickHull(final List<Point> pointList) {
         ArrayList<Point> points     = new ArrayList<>(pointList);
         List<Point>      convexHull = new ArrayList<>();

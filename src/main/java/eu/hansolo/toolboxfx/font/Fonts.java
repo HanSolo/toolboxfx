@@ -41,6 +41,9 @@ public class Fonts {
     private static String openSansSemiboldName;
 
 
+    private Fonts() {}
+
+
     static {
         try {
             latoLightName         = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/Lato-Lig.otf"), 10).getName();
@@ -51,7 +54,9 @@ public class Fonts {
             openSansLightName     = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/OpenSans-Light.ttf"), 10).getName();
             openSansRegularName   = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/OpenSans-Regular.ttf"), 10).getName();
             openSansSemiboldName  = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/OpenSans-Semibold.ttf"), 10).getName();
-        } catch (Exception exception) { }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
 
         LATO_LIGHT_NAME           = latoLightName;
         LATO_REGULAR_NAME         = latoRegularName;

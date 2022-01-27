@@ -128,10 +128,8 @@ public class Bounds {
         observers.get(type).add(observer);
     }
     public void removeBoundsObserver(final EvtType<? extends Evt> type, final EvtObserver<BoundsEvt> observer) {
-        if (observers.containsKey(type)) {
-            if (observers.get(type).contains(observer)) {
-                observers.get(type).remove(observer);
-            }
+        if (observers.containsKey(type) && observers.get(type).contains(observer)) {
+            observers.get(type).remove(observer);
         }
     }
     public void removeAllBoundsObservers() { observers.clear(); }

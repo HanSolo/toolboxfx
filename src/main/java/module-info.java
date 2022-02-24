@@ -9,7 +9,6 @@ module eu.hansolo.toolboxfx {
     requires transitive javafx.swing;
 
     // 3rd Party
-    requires transitive eu.hansolo.jdktools;
     requires transitive eu.hansolo.toolbox;
 
     exports eu.hansolo.toolboxfx.font;

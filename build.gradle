@@ -38,7 +38,7 @@ repositories {
 }
 
 dependencies {
-    implementation "eu.hansolo:toolbox:17.0.14"
+    implementation "eu.hansolo:toolbox:17.0.17"
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
@@ -72,7 +72,7 @@ jar {
                 'Bundle-SymbolicName'   : 'eu.hansolo.toolboxfx',
                 'Export-Package'        : 'eu.hansolo.toolboxfx,eu.hansolo.toolboxfx.geom,eu.hansolo.toolboxfx.font',
                 'Class-Path'            : '${project.name}-${project.version}.jar',
-                'Main-Class'            : 'eu.hansolo.toolboxfx.Demo'
+                'Main-Class'            : '${mainClassName}'
         )
     }
 }
@@ -80,7 +80,7 @@ jar {
 
 // start the demo from gradle
 task Demo(type: JavaExec) {
-    main = "eu.hansolo.toolboxfx/Demo"
+    mainClass = "eu.hansolo.toolboxfx/Demo"
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -114,9 +114,9 @@ signing {
 publishing {
     publications {
         mavenCustom(MavenPublication) {
-            group = 'eu.hansolo'
+            group      = 'eu.hansolo'
             artifactId = 'toolboxfx'
-            version = "${version}"
+            version    = "${version}"
 
             from components.java
             artifact sourcesJar
@@ -131,26 +131,26 @@ publishing {
             }
 
             pom {
-                name = 'ToolboxFX'
+                name        = 'ToolboxFX'
                 description = 'ToolboxFX contains a collection of useful tools'
-                url = "https://github.com/HanSolo/toolboxfx/wiki"
+                url         = "https://github.com/HanSolo/toolboxfx/wiki"
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        url  = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
                 }
                 developers {
                     developer {
-                        id = "HanSolo"
-                        name = "Gerrit Grunwald"
+                        id    = "HanSolo"
+                        name  = "Gerrit Grunwald"
                         email = "han.solo@mac.com"
                     }
                 }
                 scm {
-                    connection = "scm:git:https://HanSolo/toolboxfx"
+                    connection          = "scm:git:https://HanSolo/toolboxfx"
                     developerConnection = "scm:git:https://HanSolo/toolboxfx"
-                    url = "https://github.com/HanSolo/toolboxfx"
+                    url                 = "https://github.com/HanSolo/toolboxfx"
                 }
             }
         }
@@ -159,7 +159,7 @@ publishing {
     repositories {
         maven {
             name = "OSSRH"
-            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            url  = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
             credentials {
                 username = null == ciOssrhUsername ? ossrhUsername : ciOssrhUsername
                 password = null == ciOssrhPassword ? ossrhPassword : ciOssrhPassword
@@ -167,7 +167,7 @@ publishing {
         }
         maven {
             name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/HanSolo/toolboxfx"
+            url  = "https://maven.pkg.github.com/HanSolo/toolboxfx"
             credentials {
                 username = null == ciGHUser  ? ghUser  : ciGHUser
                 password = null == ciGHToken ? ghToken : ciGHToken

@@ -11,6 +11,8 @@ module eu.hansolo.toolboxfx {
     // 3rd Party
     requires transitive eu.hansolo.toolbox;
 
+    opens eu.hansolo.toolboxfx to eu.hansolo.toolbox;
+
     exports eu.hansolo.toolboxfx.font;
     exports eu.hansolo.toolboxfx.evt.type;
     exports eu.hansolo.toolboxfx.geom;

@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    implementation "eu.hansolo:toolbox:17.0.19"
+    implementation "eu.hansolo:toolbox:17.0.21"
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"

@@ -3,19 +3,17 @@ import java.text.SimpleDateFormat
 plugins {
     id 'idea'
     id 'java-library'
+    id 'application'
     id 'maven-publish'
     id 'signing'
-    id 'com.google.osdetector'           version '1.7.0'
-    id 'org.javamodularity.moduleplugin' version '1.8.10'
-    id 'org.beryx.jlink'                 version '2.24.4'
-    id 'net.nemerosa.versioning'         version '2.15.1'
+    id 'com.google.osdetector'   version '1.7.0'
+    id 'net.nemerosa.versioning' version '2.15.1'
 }
 
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 description = 'ToolboxFX contains a collection of useful tools'
-mainClassName = "$moduleName/eu.hansolo.toolboxfx/Demo"
 
 Date buildTimeAndDate = new Date()
 ext {
@@ -31,12 +29,17 @@ ext {
     gpgpassphrase   = System.getenv("PASSPHRASE")
 }
 
+application {
+    mainModule = 'eu.hansolo.toolboxfx'
+    mainClass  = 'eu.hansolo.toolboxfx.Demo'
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation "eu.hansolo:toolbox:17.0.21"
+    implementation "eu.hansolo:toolbox:17.0.22"
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
@@ -86,7 +89,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 
 // start the demo from gradle
 task Demo(type: JavaExec) {
-    mainClass = "eu.hansolo.toolboxfx/Demo"
+    mainClass = "eu.hansolo.toolboxfx.Demo"
     classpath = sourceSets.main.runtimeClasspath
 }
 

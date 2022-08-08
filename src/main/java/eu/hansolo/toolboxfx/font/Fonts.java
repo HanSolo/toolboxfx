@@ -30,6 +30,8 @@ public class Fonts {
     private static final String OPEN_SANS_LIGHT_NAME;
     private static final String OPEN_SANS_REGULAR_NAME;
     private static final String OPEN_SANS_SEMIBOLD_NAME;
+    private static final String COUSINE_REGULAR_NAME;
+    private static final String COUSINE_BOLD_NAME;
 
     private static String latoLightName;
     private static String latoRegularName;
@@ -39,6 +41,9 @@ public class Fonts {
     private static String openSansLightName;
     private static String openSansRegularName;
     private static String openSansSemiboldName;
+    private static String cousineRegularName;
+    private static String cousineBoldName;
+
 
 
     private Fonts() {}
@@ -54,6 +59,8 @@ public class Fonts {
             openSansLightName     = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/OpenSans-Light.ttf"), 10).getName();
             openSansRegularName   = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/OpenSans-Regular.ttf"), 10).getName();
             openSansSemiboldName  = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/OpenSans-Semibold.ttf"), 10).getName();
+            cousineRegularName    = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/Cousine-Regular.ttf"), 10).getName();
+            cousineBoldName       = Font.loadFont(Fonts.class.getResourceAsStream("/eu/hansolo/toolboxfx/font/Cousine-Bold.ttf"), 10).getName();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -66,6 +73,8 @@ public class Fonts {
         OPEN_SANS_LIGHT_NAME      = openSansLightName;
         OPEN_SANS_REGULAR_NAME    = openSansRegularName;
         OPEN_SANS_SEMIBOLD_NAME   = openSansSemiboldName;
+        COUSINE_REGULAR_NAME      = cousineRegularName;
+        COUSINE_BOLD_NAME         = cousineBoldName;
     }
 
 
@@ -79,4 +88,7 @@ public class Fonts {
     public static Font opensansLight(final double SIZE) { return new Font(OPEN_SANS_LIGHT_NAME, SIZE); }
     public static Font opensansRegular(final double SIZE) { return new Font(OPEN_SANS_REGULAR_NAME, SIZE); }
     public static Font opensansSemibold(final double SIZE) { return new Font(OPEN_SANS_SEMIBOLD_NAME, SIZE); }
+
+    public static Font cousineRegular(final double SIZE) { return new Font(COUSINE_REGULAR_NAME, SIZE); }
+    public static Font cousineBold(final double SIZE) { return new Font(COUSINE_BOLD_NAME, SIZE); }
 }

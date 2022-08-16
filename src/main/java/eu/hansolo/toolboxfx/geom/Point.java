@@ -106,6 +106,8 @@ public class Point implements Comparable<Point> {
 
     public Point multiply(final double factor) { return new Point(getX() * factor, getY() * factor); }
 
+    public Point div(final double factor) { return new Point(getX() / factor, getY() / factor); }
+
     public Point normalize() {
         final double mag = magnitude();
         if (mag == 0.0) { return new Point(0.0, 0.0); }

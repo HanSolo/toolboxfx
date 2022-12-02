@@ -476,6 +476,21 @@ public class HelperFX {
         }
     }
 
+    public static final int checkCircleCircleCollision(final Point center1, final double radius1, final Point center2, final double radius2) {
+        final double d = Math.sqrt((center1.getX() - center2.getX()) * (center1.getX() - center2.getX()) + (center1.getY() - center2.getY()) * (center1.getY() - center2.getY()));
+        if (d <= radius1 - radius2) {
+            return 1; // circle 2 inside of circle 1
+        } else if (d <= radius2 - radius1) {
+            return 1; // circle 1 inside of circle 2
+        } else if (d < radius1 + radius2) {
+            return 1; // intersect
+        } else if (Double.compare(d, radius1 + radius2) == 0) {
+            return 0; // touch
+        } else {
+            return -1; // no collision
+        }
+    }
+
     public static final double getAngleFromXY(final double x, final double y, final double centerX, final double centerY) {
         return getAngleFromXY(x, y, centerX, centerY, 90.0);
     }

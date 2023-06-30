@@ -6,7 +6,7 @@ plugins {
     id 'application'
     id 'maven-publish'
     id 'signing'
-    id 'com.google.osdetector'   version '1.7.0'
+    id 'com.google.osdetector'   version '1.7.3'
     id 'net.nemerosa.versioning' version '3.0.0'
 }
 
@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    implementation "eu.hansolo:toolbox:17.0.26"
+    implementation "eu.hansolo:toolbox:17.0.45"
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"

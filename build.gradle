@@ -71,9 +71,9 @@ jar {
                 'Bundle-License'        : 'https://www.apache.org/licenses/LICENSE-2.0;description=Apache License Version 2.0;link=https://spdx.org/licenses/Apache-2.0.html',
                 'Bundle-Description'    : description,
                 'Bundle-SymbolicName'   : 'eu.hansolo.toolboxfx',
-                'Export-Package'        : 'eu.hansolo.toolboxfx,eu.hansolo.toolboxfx.geom,eu.hansolo.toolboxfx.font',
+                'Export-Package'        : 'eu.hansolo.toolboxfx, eu.hansolo.toolboxfx.geom, eu.hansolo.toolboxfx.font, eu.hansolo.toolboxfx.evt.type',
                 'Class-Path'            : configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
-                'Main-Class'            : '${mainClassName}'
+                'Main-Class'            : "${mainClassName}"
         )
     }
 }

@@ -29,11 +29,6 @@ ext {
     gpgpassphrase   = System.getenv("PASSPHRASE")
 }
 
-application {
-    mainModule = 'eu.hansolo.toolboxfx'
-    mainClass  = 'eu.hansolo.toolboxfx.Demo'
-}
-
 repositories {
     mavenCentral()
 }
@@ -46,6 +41,10 @@ dependencies {
     implementation "org.openjfx:javafx-swing:${javafxVersion}:${platform}"
 }
 
+application {
+    mainClass  = 'eu.hansolo.toolboxfx.Demo'
+    mainModule = 'eu.hansolo.toolboxfx'
+}
 
 jar {
     from {
@@ -73,7 +72,7 @@ jar {
                 'Bundle-SymbolicName'   : 'eu.hansolo.toolboxfx',
                 'Export-Package'        : 'eu.hansolo.toolboxfx, eu.hansolo.toolboxfx.geom, eu.hansolo.toolboxfx.font, eu.hansolo.toolboxfx.evt.type',
                 'Class-Path'            : "${project.name}-${project.version}.jar",
-                'Main-Class'            : "${mainClassName}"
+                'Main-Class'            : application.mainClass
         )
     }
 }

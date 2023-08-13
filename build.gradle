@@ -72,7 +72,7 @@ jar {
                 'Bundle-Description'    : description,
                 'Bundle-SymbolicName'   : 'eu.hansolo.toolboxfx',
                 'Export-Package'        : 'eu.hansolo.toolboxfx, eu.hansolo.toolboxfx.geom, eu.hansolo.toolboxfx.font, eu.hansolo.toolboxfx.evt.type',
-                'Class-Path'            : configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
+                'Class-Path'            : "${project.name}-${project.version}.jar",
                 'Main-Class'            : "${mainClassName}"
         )
     }

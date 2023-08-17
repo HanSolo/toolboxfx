@@ -1,3 +1,6 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 import java.text.SimpleDateFormat
 
 plugins {
@@ -19,19 +22,14 @@ Date buildTimeAndDate = new Date()
 ext {
     moduleName      = 'eu.hansolo.toolboxfx'
     buildDate       = new SimpleDateFormat('yyyy-MM-dd').format(buildTimeAndDate)
-    platform        = osdetector.os == 'osx' ? osdetector.arch == 'aarch_64' ? 'mac-aarch64' : 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os == 'linux' ? osdetector.arch == 'aarch_64' ? 'linux-aarch64' : 'linux' : osdetector.os
     buildTime       = new SimpleDateFormat('HH:mm:ss.SSSZ').format(buildTimeAndDate)
+    platform        = osdetector.os == 'osx' ? osdetector.arch == 'aarch_64' ? 'mac-aarch64' : 'mac' : osdetector.os == 'windows' ? 'win' : osdetector.os == 'linux' ? osdetector.arch == 'aarch_64' ? 'linux-aarch64' : 'linux' : osdetector.os
     ciOssrhUsername = System.getenv('OSSRH_USERNAME')
     ciOssrhPassword = System.getenv('OSSRH_PASSWORD')
     ciGHUser        = System.getenv('GH_USER')
     ciGHToken       = System.getenv('GH_TOKEN')
     gpgkey          = System.getenv("GPG_PRIVATE_KEY")
     gpgpassphrase   = System.getenv("PASSPHRASE")
-}
-
-application {
-    mainModule = 'eu.hansolo.toolboxfx'
-    mainClass  = 'eu.hansolo.toolboxfx.Demo'
 }
 
 repositories {
@@ -46,6 +44,10 @@ dependencies {
     implementation "org.openjfx:javafx-swing:${javafxVersion}:${platform}"
 }
 
+application {
+    mainClass  = 'eu.hansolo.toolboxfx.Demo'
+    mainModule = 'eu.hansolo.toolboxfx'
+}
 
 jar {
     from {
@@ -72,8 +74,8 @@ jar {
                 'Bundle-Description'    : description,
                 'Bundle-SymbolicName'   : 'eu.hansolo.toolboxfx',
                 'Export-Package'        : 'eu.hansolo.toolboxfx, eu.hansolo.toolboxfx.geom, eu.hansolo.toolboxfx.font, eu.hansolo.toolboxfx.evt.type',
-                'Class-Path'            : configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
-                'Main-Class'            : "${mainClassName}"
+                'Class-Path'            : "${project.name}-${project.version}.jar",
+                'Main-Class'            : application.mainClass
         )
     }
 }
@@ -118,6 +120,24 @@ signing {
 
     sign configurations.archives
     sign publishing.publications
+}
+
+// Remove 'thirdPartyCompatibility' from JavaFX runtimeElements variant
+// Otherwise it locks Gradle Module Metadata (GMM) to the publishing OS
+tasks.withType(GenerateModuleMetadata).configureEach {
+    doLast { _ ->
+        def gmmFile = it.outputFile.get().asFile
+        def inJson = new JsonSlurper().parseText(gmmFile.text)
+        def filteredVariant = inJson.variants.findAll { it.name == configurations.runtimeElements.name }
+        // remove "thirdPartyCompatibility" from GMM
+        filteredVariant.dependencies.first().each {
+            if (it.group == 'org.openjfx') {
+                it.remove('thirdPartyCompatibility')
+            }
+        }
+        def outJson = JsonOutput.toJson(inJson)
+        gmmFile.write(JsonOutput.prettyPrint(outJson))
+    }
 }
 
 publishing {

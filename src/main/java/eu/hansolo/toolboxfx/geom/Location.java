@@ -22,6 +22,8 @@ import eu.hansolo.toolbox.Helper;
 import eu.hansolo.toolbox.evt.Evt;
 import eu.hansolo.toolbox.evt.EvtObserver;
 import eu.hansolo.toolbox.evt.EvtType;
+import eu.hansolo.toolbox.geo.GeoLocation;
+import eu.hansolo.toolbox.geo.GeoLocationBuilder;
 import eu.hansolo.toolboxfx.Constants;
 import eu.hansolo.toolboxfx.HelperFX;
 import eu.hansolo.toolboxfx.evt.type.LocationChangeEvt;
@@ -36,7 +38,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,14 +49,7 @@ import static eu.hansolo.toolbox.Constants.QUOTES;
 
 
 public class Location {
-    private final String                                             id;
-    private       Instant                                            timestamp;
-    private       double                                             latitude;
-    private       double                                             longitude;
-    private       double                                             altitude;
-    private       double                                             accuracy;
-    private       String                                             name;
-    private       String                                             info;
+    private       GeoLocation                                        geoLocation;
     private       Color                                              _fill;
     private       ObjectProperty<Color>                              fill;
     private       Color                                              _stroke;
@@ -77,14 +71,16 @@ public class Location {
         this(Instant.now(), latitude, longitude, 0, 1, "", "", Color.BLUE, Color.TRANSPARENT);
     }
     public Location(final Instant timestamp, final double latitude, final double longitude, final double altitude, final double accuracy, final String name, final String info, final Color fill, final Color stroke) {
-        this.id          = UUID.randomUUID().toString();
-        this.timestamp   = timestamp;
-        this.latitude    = latitude;
-        this.longitude   = longitude;
-        this.altitude    = altitude;
-        this.accuracy    = accuracy;
-        this.name        = name;
-        this.info        = info;
+        this.geoLocation = GeoLocationBuilder.create()
+                                             .name(name)
+                                             .info(info)
+                                             .timestamp(timestamp.getEpochSecond())
+                                             .latitude(latitude)
+                                             .longitude(longitude)
+                                             .altitude(altitude)
+                                             .accuracy(accuracy)
+                                             .build();
+
         this.zoomLevel   = 15;
         this._fill       = fill;
         this._stroke     = stroke;
@@ -94,58 +90,60 @@ public class Location {
 
 
     // ******************** Methods *******************************************
-    public String getId() { return id; }
+    public String getId() { return this.geoLocation.getId(); }
 
-    public Instant getTimestamp() { return timestamp; }
-    public long getTimestampInSeconds() { return timestamp.getEpochSecond(); }
+    public Instant getTimestamp() { return Instant.ofEpochSecond(geoLocation.getTimestamp()); }
+    public long getTimestampInSeconds() { return geoLocation.getTimestamp(); }
     public void setTimestamp(final Instant timestamp) {
         this.oldLocation = getCopy();
-        this.timestamp   = timestamp;
+        this.geoLocation.setTimestamp(timestamp.getEpochSecond());
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.TIMESTAMP_CHANGED, oldLocation, Location.this));
     }
 
     public LocalDateTime getLocaleDateTime() { return getLocalDateTime(ZoneId.systemDefault()); }
-    public LocalDateTime getLocalDateTime(final ZoneId zoneId) { return LocalDateTime.ofInstant(timestamp, zoneId); }
+    public LocalDateTime getLocalDateTime(final ZoneId zoneId) {
+        return LocalDateTime.ofInstant(getTimestamp(), zoneId);
+    }
 
-    public double getLatitude() { return latitude; }
+    public double getLatitude() { return this.geoLocation.getLatitude(); }
     public void setLatitude(final double latitude) {
         this.oldLocation = getCopy();
-        this.latitude    = latitude;
+        this.geoLocation.setLatitude(latitude);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
 
-    public double getLongitude() { return longitude; }
+    public double getLongitude() { return this.geoLocation.getLongitude(); }
     public void setLongitude(final double longitude) {
         final Location oldLocation = getCopy();
-        this.longitude = longitude;
+        this.geoLocation.setLongitude(longitude);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
 
-    public double getAltitude() { return altitude; }
+    public double getAltitude() { return this.geoLocation.getAltitude(); }
     public void setAltitude(final double altitude) {
         this.oldLocation = getCopy();
-        this.altitude    = altitude;
+        this.geoLocation.setAltitude(altitude);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
 
-    public double getAccuracy() { return accuracy; }
+    public double getAccuracy() { return this.geoLocation.getAccuracy(); }
     public void setAccuracy(final double accuracy) {
         this.oldLocation = getCopy();
-        this.accuracy    = accuracy;
+        this.geoLocation.setAccuracy(accuracy);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.ACCURACY_CHANGED, oldLocation, Location.this));
     }
 
-    public String getName() { return name; }
+    public String getName() { return this.geoLocation.getName(); }
     public void setName(final String name) {
         this.oldLocation = getCopy();
-        this.name        = name;
+        this.geoLocation.setName(name);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.NAME_CHANGED, oldLocation, Location.this));
     }
 
-    public String getInfo() { return info; }
+    public String getInfo() { return this.geoLocation.getInfo(); }
     public void setInfo(final String info) {
         this.oldLocation = getCopy();
-        this.info        = info;
+        this.geoLocation.setInfo(info);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.INFO_CHANGED, oldLocation, Location.this));
     }
 
@@ -213,42 +211,30 @@ public class Location {
     }
 
     // longitude -> x and latitude -> y
-    public Point getAsPoint() { return new Point(longitude, latitude); }
+    public Point getAsPoint() { return new Point(this.geoLocation.getLongitude(), this.geoLocation.getLatitude()); }
+
+    public GeoLocation getGeoLocation() { return this.geoLocation; }
 
     public void set(final double latitude, final double longitude) {
         final Location oldLocation = getCopy();
-        this.latitude  = latitude;
-        this.longitude = longitude;
-        timestamp      = Instant.now();
+        this.geoLocation.set(latitude, longitude);
+        this.geoLocation.setTimestamp(Instant.now().getEpochSecond());
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
     public void set(final double latitude, final double longitude, final double altitude, final Instant timestamp) {
         final Location oldLocation = getCopy();
-        this.latitude  = latitude;
-        this.longitude = longitude;
-        this.altitude  = altitude;
-        this.timestamp = timestamp;
+        this.geoLocation.set(latitude, longitude, altitude, Instant.now().getEpochSecond());
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
     public void set(final double latitude, final double longitude, final double altitude, final Instant timestamp, final double accuracy, final String info) {
         final Location oldLocation = getCopy();
-        this.latitude  = latitude;
-        this.longitude = longitude;
-        this.altitude  = altitude;
-        this.timestamp = timestamp;
-        this.accuracy  = accuracy;
-        this.info      = info;
+        this.geoLocation.set(latitude, longitude, altitude, timestamp.getEpochSecond(), accuracy, info);
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
     public void set(final Location location) {
         final Location oldLocation = getCopy();
-        latitude  = location.getLatitude();
-        longitude = location.getLongitude();
-        altitude  = location.getAltitude();
-        timestamp = location.getTimestamp();
-        accuracy  = location.getAccuracy();
-        name      = location.getName();
-        info      = location.getInfo();
+        this.geoLocation.set(location.getLatitude(), location.getLongitude(), location.getAltitude(), location.getTimestamp().getEpochSecond(), location.getAccuracy(), location.getInfo());
+        this.geoLocation.setName(location.getName());
         fireLocationEvent(new LocationChangeEvt(Location.this, LocationChangeEvt.LOCATION_CHANGED, oldLocation, Location.this));
     }
 
@@ -276,7 +262,7 @@ public class Location {
         return distance;
     }
 
-    public double getAltitudeDifferenceInMeter(final Location location) { return (altitude - location.getAltitude()); }
+    public double getAltitudeDifferenceInMeter(final Location location) { return (this.geoLocation.getAltitude() - location.getAltitude()); }
 
     public double getBearingTo(final Location location) {
         return calcBearingInDegree(getLatitude(), getLongitude(), location.getLatitude(), location.getLongitude());
@@ -285,7 +271,7 @@ public class Location {
         return calcBearingInDegree(getLatitude(), getLongitude(), latitude, longitude);
     }
 
-    public boolean isZero() { return Double.compare(latitude, 0d) == 0 && Double.compare(longitude, 0d) == 0; }
+    public boolean isZero() { return Double.compare(this.geoLocation.getLatitude(), 0d) == 0 && Double.compare(this.geoLocation.getLongitude(), 0d) == 0; }
 
     public double calcBearingInDegree(final double lt1, final double ln1, final double lt2, final double ln2) {
         double lat1     = Math.toRadians(lt1);
@@ -316,7 +302,7 @@ public class Location {
     }
 
     public Location getCopy() {
-        return new Location(Instant.ofEpochSecond(this.timestamp.getEpochSecond()), this.latitude, this.longitude, this.altitude, this.accuracy, this.name, this.info, getFill(), getStroke());
+        return new Location(Instant.ofEpochSecond(this.geoLocation.getTimestamp()), this.geoLocation.getLatitude(), this.geoLocation.getLongitude(), this.geoLocation.getAltitude(), this.geoLocation.getAccuracy(), this.geoLocation.getName(), this.geoLocation.getInfo(), getFill(), getStroke());
     }
 
     public void dispose() { removeAllObservers(); }
@@ -361,7 +347,7 @@ public class Location {
     @Override public boolean equals(final Object other) {
         if (other instanceof Location) {
             final Location location = (Location) other;
-            return id.equals(location.getId());
+            return this.geoLocation.getId().equals(location.getId());
         } else {
             return false;
         }
@@ -370,26 +356,26 @@ public class Location {
     @Override public int hashCode() {
         int result;
         long temp;
-        result = name != null ? name.hashCode() : 0;
-        temp = Double.doubleToLongBits(latitude);
+        result = this.geoLocation.getName() != null ? this.geoLocation.getName().hashCode() : 0;
+        temp = Double.doubleToLongBits(this.geoLocation.getLatitude());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(longitude);
+        temp = Double.doubleToLongBits(this.geoLocation.getLongitude());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(altitude);
+        temp = Double.doubleToLongBits(this.geoLocation.getAltitude());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
     @Override public String toString() {
         return new StringBuilder().append(CURLY_BRACKET_OPEN)
-                                  .append(QUOTES).append("id").append(QUOTES).append(COLON).append(id).append(QUOTES).append(COMMA)
-                                  .append(QUOTES).append("timestamp").append(QUOTES).append(COLON).append(timestamp.getEpochSecond()).append(COMMA)
-                                  .append(QUOTES).append("latitude").append(QUOTES).append(COLON).append(latitude).append(COMMA)
-                                  .append(QUOTES).append("longitude").append(QUOTES).append(COLON).append(longitude).append(COMMA)
-                                  .append(QUOTES).append("altitude").append(QUOTES).append(COLON).append(altitude).append(COMMA)
-                                  .append(QUOTES).append("accuracy").append(QUOTES).append(COLON).append(accuracy).append(COMMA)
-                                  .append(QUOTES).append("name").append(QUOTES).append(COLON).append(QUOTES).append(name).append(QUOTES).append(COMMA)
-                                  .append(QUOTES).append("info").append(QUOTES).append(COLON).append(QUOTES).append(info).append(QUOTES).append(COMMA)
+                                  .append(QUOTES).append("id").append(QUOTES).append(COLON).append(this.geoLocation.getId()).append(QUOTES).append(COMMA)
+                                  .append(QUOTES).append("timestamp").append(QUOTES).append(COLON).append(this.geoLocation.getTimestamp()).append(COMMA)
+                                  .append(QUOTES).append("latitude").append(QUOTES).append(COLON).append(this.geoLocation.getLatitude()).append(COMMA)
+                                  .append(QUOTES).append("longitude").append(QUOTES).append(COLON).append(this.geoLocation.getLongitude()).append(COMMA)
+                                  .append(QUOTES).append("altitude").append(QUOTES).append(COLON).append(this.geoLocation.getAltitude()).append(COMMA)
+                                  .append(QUOTES).append("accuracy").append(QUOTES).append(COLON).append(this.geoLocation.getAccuracy()).append(COMMA)
+                                  .append(QUOTES).append("name").append(QUOTES).append(COLON).append(QUOTES).append(this.geoLocation.getName()).append(QUOTES).append(COMMA)
+                                  .append(QUOTES).append("info").append(QUOTES).append(COLON).append(QUOTES).append(this.geoLocation.getInfo()).append(QUOTES).append(COMMA)
                                   .append(QUOTES).append("fill").append(QUOTES).append(COLON).append(QUOTES).append(HelperFX.colorToWeb(getFill())).append(QUOTES).append(COMMA)
                                   .append(QUOTES).append("stroke").append(QUOTES).append(COLON).append(QUOTES).append(HelperFX.colorToWeb(getStroke())).append(QUOTES).append(COMMA)
                                   .append(QUOTES).append("zoom_level").append(QUOTES).append(COLON).append(zoomLevel)

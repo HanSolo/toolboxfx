@@ -71,6 +71,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -169,14 +170,10 @@ public class HelperFX {
         return Arrays.asList(subdividePoints(points.toArray(new Point[0]), subDevisions));
     }
     public static final Point[] subdividePoints(final Point[] points, final int subDevisions) {
-        assert points != null;
-        assert points.length >= 3;
-        int    noOfPoints = points.length;
-
-        Point[] subdividedPoints = new Point[((noOfPoints - 1) * subDevisions) + 1];
-
-        double increments = 1.0 / (double) subDevisions;
-
+        if (null == points || points.length < 3) { throw new IllegalArgumentException("Points cannot be null and must have at least 3 entries"); }
+        final int     noOfPoints       = points.length;
+        final Point[] subdividedPoints = new Point[((noOfPoints - 1) * subDevisions) + 1];
+        final double  increments       = 1.0 / (double) subDevisions;
         for (int i = 0 ; i < noOfPoints - 1 ; i++) {
             Point p0 = i == 0 ? points[i] : points[i - 1];
             Point p1 = points[i];
@@ -189,7 +186,6 @@ public class HelperFX {
                 subdividedPoints[(i * subDevisions) + j] = crs.q(j * increments);
             }
         }
-
         return subdividedPoints;
     }
 
@@ -197,14 +193,10 @@ public class HelperFX {
         return Arrays.asList(subdividePointsRadial(points.toArray(new Point[0]), subDevisions));
     }
     public static final Point[] subdividePointsRadial(final Point[] points, final int subDivisions){
-        assert points != null;
-        assert points.length >= 3;
-        int    noOfPoints = points.length;
-
-        Point[] subdividedPoints = new Point[((noOfPoints - 1) * subDivisions) + 1];
-
-        double increments = 1.0 / (double) subDivisions;
-
+        if (null == points || points.length < 3) { throw new IllegalArgumentException("Points cannot be null and must have at least 3 entries"); }
+        final int     noOfPoints       = points.length;
+        final Point[] subdividedPoints = new Point[((noOfPoints - 1) * subDivisions) + 1];
+        final double  increments       = 1.0 / (double) subDivisions;
         for (int i = 0 ; i < noOfPoints - 1 ; i++) {
             Point p0 = i == 0 ? points[noOfPoints - 2] : points[i - 1];
             Point p1 = points[i];
@@ -217,7 +209,6 @@ public class HelperFX {
                 subdividedPoints[(i * subDivisions) + j] = crs.q(j * increments);
             }
         }
-
         return subdividedPoints;
     }
 
@@ -225,9 +216,7 @@ public class HelperFX {
         return Arrays.asList(subdividePointsLinear(points.toArray(new Point[0]), subDevisions));
     }
     public static final Point[] subdividePointsLinear(final Point[] points, final int subDivisions) {
-        assert  points != null;
-        assert  points.length >= 3;
-
+        if (null == points || points.length < 3) { throw new IllegalArgumentException("Points cannot be null and must have at least 3 entries"); }
         final int     noOfPoints       = points.length;
         final Point[] subdividedPoints = new Point[((noOfPoints - 1) * subDivisions) + 1];
         final double  stepSize         = (points[1].getX() - points[0].getX()) / subDivisions;
@@ -1203,50 +1192,52 @@ public class HelperFX {
     }
 
     public static final Color getColorAt(final List<Stop> stopList, final double positionOfColor) {
-        Map<Double, Stop> STOPS = new TreeMap<>();
-        for (Stop stop : stopList) { STOPS.put(stop.getOffset(), stop); }
+        Map<Double, Stop> stops = new TreeMap<>();
+        for (Stop stop : stopList) { stops.put(stop.getOffset(), stop); }
 
-        if (STOPS.isEmpty()) return Color.BLACK;
+        if (stops.isEmpty()) return Color.BLACK;
 
-        double minFraction = Collections.min(STOPS.keySet());
-        double maxFraction = Collections.max(STOPS.keySet());
+        double minFraction = Collections.min(stops.keySet());
+        double maxFraction = Collections.max(stops.keySet());
 
-        if (Double.compare(minFraction, 0d) > 0) { STOPS.put(0.0, new Stop(0.0, STOPS.get(minFraction).getColor())); }
-        if (Double.compare(maxFraction, 1d) < 0) { STOPS.put(1.0, new Stop(1.0, STOPS.get(maxFraction).getColor())); }
+        if (Double.compare(minFraction, 0d) > 0) { stops.put(0.0, new Stop(0.0, stops.get(minFraction).getColor())); }
+        if (Double.compare(maxFraction, 1d) < 0) { stops.put(1.0, new Stop(1.0, stops.get(maxFraction).getColor())); }
 
-        final double POSITION = clamp(0d, 1d, positionOfColor);
-        final Color COLOR;
-        if (STOPS.size() == 1) {
-            final Map<Double, Color> ONE_ENTRY = (Map<Double, Color>) STOPS.entrySet().iterator().next();
-            COLOR = STOPS.get(ONE_ENTRY.keySet().iterator().next()).getColor();
+        final double position = clamp(0d, 1d, positionOfColor);
+        final Color color;
+        if (stops.size() == 1) {
+            final Map<Double, Color> ONE_ENTRY = (Map<Double, Color>) stops.entrySet().iterator().next();
+            color = stops.get(ONE_ENTRY.keySet().iterator().next()).getColor();
         } else {
-            Stop lowerBound = STOPS.get(0.0);
-            Stop upperBound = STOPS.get(1.0);
-            for (Double fraction : STOPS.keySet()) {
-                if (Double.compare(fraction,POSITION) < 0) {
-                    lowerBound = STOPS.get(fraction);
+            Stop lowerBound = stops.get(0.0);
+            Stop upperBound = stops.get(1.0);
+            for (Entry<Double, Stop> entry : stops.entrySet()) {
+                final double fraction = entry.getKey();
+                final Stop   stop     = entry.getValue();
+                if (Double.compare(fraction,position) < 0) {
+                    lowerBound = stop;
                 }
-                if (Double.compare(fraction, POSITION) > 0) {
-                    upperBound = STOPS.get(fraction);
+                if (Double.compare(fraction, position) > 0) {
+                    upperBound = stop;
                     break;
                 }
             }
-            COLOR = interpolateColor(lowerBound, upperBound, POSITION);
+            color = interpolateColor(lowerBound, upperBound, position);
         }
-        return COLOR;
+        return color;
     }
     public static final Color interpolateColor(final Stop lowerBound, final Stop upperBound, final double position) {
-        final double POS  = (position - lowerBound.getOffset()) / (upperBound.getOffset() - lowerBound.getOffset());
+        final double pos  = (position - lowerBound.getOffset()) / (upperBound.getOffset() - lowerBound.getOffset());
 
-        final double DELTA_RED     = (upperBound.getColor().getRed()     - lowerBound.getColor().getRed())     * POS;
-        final double DELTA_GREEN   = (upperBound.getColor().getGreen()   - lowerBound.getColor().getGreen())   * POS;
-        final double DELTA_BLUE    = (upperBound.getColor().getBlue()    - lowerBound.getColor().getBlue())    * POS;
-        final double DELTA_OPACITY = (upperBound.getColor().getOpacity() - lowerBound.getColor().getOpacity()) * POS;
+        final double deltaRed     = (upperBound.getColor().getRed()     - lowerBound.getColor().getRed())     * pos;
+        final double deltaGreen   = (upperBound.getColor().getGreen()   - lowerBound.getColor().getGreen())   * pos;
+        final double deltaBlue    = (upperBound.getColor().getBlue()    - lowerBound.getColor().getBlue())    * pos;
+        final double deltaOpacity = (upperBound.getColor().getOpacity() - lowerBound.getColor().getOpacity()) * pos;
 
-        double red     = clamp(0, 1, (lowerBound.getColor().getRed()     + DELTA_RED));
-        double green   = clamp(0, 1, (lowerBound.getColor().getGreen()   + DELTA_GREEN));
-        double blue    = clamp(0, 1, (lowerBound.getColor().getBlue()    + DELTA_BLUE));
-        double opacity = clamp(0, 1, (lowerBound.getColor().getOpacity() + DELTA_OPACITY));
+        double red     = clamp(0, 1, (lowerBound.getColor().getRed()     + deltaRed));
+        double green   = clamp(0, 1, (lowerBound.getColor().getGreen()   + deltaGreen));
+        double blue    = clamp(0, 1, (lowerBound.getColor().getBlue()    + deltaBlue));
+        double opacity = clamp(0, 1, (lowerBound.getColor().getOpacity() + deltaOpacity));
 
         return Color.color(red, green, blue, opacity);
     }
@@ -1603,16 +1594,14 @@ public class HelperFX {
         int                 w              = (int) width;
         int                 h              = (int) height;
         double              alphaVariation = clamp(0.0, 100.0, alphaVariationInPercent);
-        final WritableImage image         = new WritableImage(w, h);
-        final PixelWriter   pixelWriter   = image.getPixelWriter();
-        final Random        rndBlackWhite = new Random();
-        final Random        rndAlpha      = new Random();
+        final WritableImage image          = new WritableImage(w, h);
+        final PixelWriter   pixelWriter    = image.getPixelWriter();
         final double        alphaStart     = alphaVariation / 100 / 2;
         final double        variation      = alphaVariation / 100;
         for (int y = 0 ; y < h ; y++) {
             for (int x = 0 ; x < w ; x++) {
-                final Color  noiseColor = rndBlackWhite.nextBoolean() ? brightColor : darkColor;
-                final double noiseAlpha = clamp(0.0, 1.0, alphaStart + rndAlpha.nextDouble() * variation);
+                final Color  noiseColor = Constants.RND.nextBoolean() ? brightColor : darkColor;
+                final double noiseAlpha = clamp(0.0, 1.0, alphaStart + Constants.RND.nextDouble() * variation);
                 pixelWriter.setColor(x, y, Color.color(noiseColor.getRed(), noiseColor.getGreen(), noiseColor.getBlue(), noiseAlpha));
             }
         }

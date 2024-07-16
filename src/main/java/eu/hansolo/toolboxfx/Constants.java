@@ -18,6 +18,9 @@
 
 package eu.hansolo.toolboxfx;
 
+import java.util.Random;
+
+
 public class Constants {
 
     private Constants() {}
@@ -26,4 +29,5 @@ public class Constants {
     public static final double HALF_PI      = Math.PI * 0.5;
     public static final double TWO_PI       = Math.PI + Math.PI;
     public static final double THREE_PI     = TWO_PI + Math.PI;
+    public static final Random RND          = new Random();
 }

@@ -36,9 +36,9 @@ public enum CardinalDirection {
     NW("North-West", 303.75, 326.25),
     NNW("North North-West", 326.25, 348.75);
 
-    public String direction;
-    public double from;
-    public double to;
+    public final String direction;
+    public final double from;
+    public final double to;
 
     CardinalDirection(final String DIRECTION, final double FROM, final double TO) {
         direction = DIRECTION;

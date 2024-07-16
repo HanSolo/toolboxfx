@@ -30,9 +30,9 @@ import static eu.hansolo.toolbox.Constants.CURLY_BRACKET_OPEN;
 import static eu.hansolo.toolbox.Constants.QUOTES;
 
 
-public class Point implements Comparable<Point> {
-    public double   x;
-    public double   y;
+public class Point implements Comparable<Point>, Cloneable {
+    public  double   x;
+    public  double   y;
     private boolean empty;
 
 
@@ -195,7 +195,7 @@ public class Point implements Comparable<Point> {
     }
 
 
-    public Point clone() {
+    @Override public Point clone() {
         return new Point(this.x, this.y);
     }
 

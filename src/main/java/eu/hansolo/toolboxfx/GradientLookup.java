@@ -39,12 +39,12 @@ public class GradientLookup {
     public GradientLookup () {
         this(new Stop[]{});
     }
-    public GradientLookup(final Stop... STOPS) {
-        this(Arrays.asList(STOPS));
+    public GradientLookup(final Stop... stops) {
+        this(Arrays.asList(stops));
     }
-    public GradientLookup(final List<Stop> STOPS) {
-        stops = new TreeMap<>();
-        for (Stop stop : STOPS) { stops.put(stop.getOffset(), stop); }
+    public GradientLookup(final List<Stop> stops) {
+        this.stops = new TreeMap<>();
+        for (Stop stop : stops) { this.stops.put(stop.getOffset(), stop); }
         init();
     }
 
@@ -62,51 +62,53 @@ public class GradientLookup {
 
 
     // ******************** Methods *******************************************
-    public Color getColorAt(final double POSITION_OF_COLOR) {
+    public Color getColorAt(final double positionOfColor) {
         if (stops.isEmpty()) return Color.BLACK;
-        final int    SIZE     = stops.size();
-        final double POSITION = Helper.clamp(0.0, 1.0, POSITION_OF_COLOR);
-        final Color COLOR;
-        if (SIZE == 1) {
-            final Map<Double, Color> ONE_ENTRY = (Map<Double, Color>) stops.entrySet().iterator().next();
-            COLOR = stops.get(ONE_ENTRY.keySet().iterator().next()).getColor();
+        final int    size     = stops.size();
+        final double position = Helper.clamp(0.0, 1.0, positionOfColor);
+        final Color  color;
+        if (size == 1) {
+            final Map<Double, Color> oneEntry = (Map<Double, Color>) stops.entrySet().iterator().next();
+            color = stops.get(oneEntry.keySet().iterator().next()).getColor();
         } else {
             Stop lowerBound = stops.get(0.0);
             Stop upperBound = stops.get(1.0);
             int  counter    = 0;
-            for (Double fraction : stops.keySet()) {
-                if (counter != SIZE - 1 && Double.compare(fraction, POSITION) == 0) {
-                    lowerBound = stops.get(fraction);
-                } else if (Double.compare(fraction, POSITION) < 0) {
-                    lowerBound = stops.get(fraction);
-                } else if (Double.compare(fraction, POSITION) > 0) {
-                    upperBound = stops.get(fraction);
+            for (Entry<Double, Stop> entry : stops.entrySet()) {
+                final double fraction = entry.getKey();
+                final Stop   stop     = entry.getValue();
+                if (counter != size - 1 && Double.compare(fraction, position) == 0) {
+                    lowerBound = stop;
+                } else if (Double.compare(fraction, position) < 0) {
+                    lowerBound = stop;
+                } else if (Double.compare(fraction, position) > 0) {
+                    upperBound = stop;
                     break;
                 }
                 counter++;
             }
-            COLOR = interpolateColor(lowerBound, upperBound, POSITION);
+            color = interpolateColor(lowerBound, upperBound, position);
         }
-        return COLOR;
+        return color;
     }
 
     public List<Stop> getStops() { return new ArrayList<>(stops.values()); }
-    public void setStops(final Stop... STOPS) { setStops(Arrays.asList(STOPS)); }
-    public void setStops(final List<Stop> STOPS) {
-        stops.clear();
-        for (Stop stop : STOPS) { stops.put(stop.getOffset(), stop); }
+    public void setStops(final Stop... stops) { setStops(Arrays.asList(stops)); }
+    public void setStops(final List<Stop> stops) {
+        this.stops.clear();
+        for (Stop stop : stops) { this.stops.put(stop.getOffset(), stop); }
         init();
     }
 
-    public Stop getStopAt(final double POSITION_OF_STOP) {
+    public Stop getStopAt(final double positionOfStop) {
         if (stops.isEmpty()) { throw new IllegalArgumentException("GradientStop stops should not be empty"); };
 
-        final double POSITION = Helper.clamp(0.0, 1.0, POSITION_OF_STOP);
+        final double position = Helper.clamp(0.0, 1.0, positionOfStop);
 
         Stop stop = null;
-        double distance = Math.abs(stops.get(Double.valueOf(0)).getOffset() - POSITION);
+        double distance = Math.abs(stops.get(Double.valueOf(0)).getOffset() - position);
         for(Entry<Double, Stop> entry : stops.entrySet()) {
-            double cdistance = Math.abs(entry.getKey() - POSITION);
+            double cdistance = Math.abs(entry.getKey() - position);
             if (cdistance < distance) {
                 stop = stops.get(entry.getKey());
                 distance = cdistance;
@@ -115,26 +117,26 @@ public class GradientLookup {
         return stop;
     }
 
-    public List<Stop> getStopsBetween(final double MIN_OFFSET, final double MAX_OFFSET) {
+    public List<Stop> getStopsBetween(final double minOffset, final double maxOffset) {
         List<Stop> selectedStops = new ArrayList<>();
         for (Entry<Double, Stop> entry : stops.entrySet()) {
-            if (entry.getValue().getOffset() >= MIN_OFFSET && entry.getValue().getOffset() <= MAX_OFFSET) { selectedStops.add(entry.getValue()); }
+            if (entry.getValue().getOffset() >= minOffset && entry.getValue().getOffset() <= maxOffset) { selectedStops.add(entry.getValue()); }
         }
         return selectedStops;
     }
 
-    private Color interpolateColor(final Stop LOWER_BOUND, final Stop UPPER_BOUND, final double POSITION) {
-        final double POS  = (POSITION - LOWER_BOUND.getOffset()) / (UPPER_BOUND.getOffset() - LOWER_BOUND.getOffset());
+    private Color interpolateColor(final Stop lowerBound, final Stop upperBound, final double position) {
+        final double pos  = (position - lowerBound.getOffset()) / (upperBound.getOffset() - lowerBound.getOffset());
 
-        final double DELTA_RED     = (UPPER_BOUND.getColor().getRed()     - LOWER_BOUND.getColor().getRed())     * POS;
-        final double DELTA_GREEN   = (UPPER_BOUND.getColor().getGreen()   - LOWER_BOUND.getColor().getGreen())   * POS;
-        final double DELTA_BLUE    = (UPPER_BOUND.getColor().getBlue()    - LOWER_BOUND.getColor().getBlue())    * POS;
-        final double DELTA_OPACITY = (UPPER_BOUND.getColor().getOpacity() - LOWER_BOUND.getColor().getOpacity()) * POS;
+        final double deltaRed     = (upperBound.getColor().getRed()     - lowerBound.getColor().getRed())     * pos;
+        final double deltaGreen   = (upperBound.getColor().getGreen()   - lowerBound.getColor().getGreen())   * pos;
+        final double deltaBlue    = (upperBound.getColor().getBlue()    - lowerBound.getColor().getBlue())    * pos;
+        final double deltaOpacity = (upperBound.getColor().getOpacity() - lowerBound.getColor().getOpacity()) * pos;
 
-        final double red     = Helper.clamp(0.0, 1.0, (LOWER_BOUND.getColor().getRed() + DELTA_RED));
-        final double green   = Helper.clamp(0.0, 1.0, (LOWER_BOUND.getColor().getGreen()   + DELTA_GREEN));
-        final double blue    = Helper.clamp(0.0, 1.0, (LOWER_BOUND.getColor().getBlue()    + DELTA_BLUE));
-        final double opacity = Helper.clamp(0.0, 1.0, (LOWER_BOUND.getColor().getOpacity() + DELTA_OPACITY));
+        final double red     = Helper.clamp(0.0, 1.0, (lowerBound.getColor().getRed() + deltaRed));
+        final double green   = Helper.clamp(0.0, 1.0, (lowerBound.getColor().getGreen()   + deltaGreen));
+        final double blue    = Helper.clamp(0.0, 1.0, (lowerBound.getColor().getBlue()    + deltaBlue));
+        final double opacity = Helper.clamp(0.0, 1.0, (lowerBound.getColor().getOpacity() + deltaOpacity));
 
         return Color.color(red, green, blue, opacity);
     }

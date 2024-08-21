@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-    api "eu.hansolo:toolbox:21.0.9"
+    api "eu.hansolo:toolbox:21.0.11"
     implementation "org.openjfx:javafx-base:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-graphics:${javafxVersion}:${platform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${platform}"
@@ -72,6 +72,7 @@ jar {
                 'Bundle-Name'           : project.name,
                 'Bundle-License'        : 'https://www.apache.org/licenses/LICENSE-2.0;description=Apache License Version 2.0;link=https://spdx.org/licenses/Apache-2.0.html',
                 'Bundle-Description'    : project.description,
+                'Bundle-Version'        : project.version,
                 'Bundle-SymbolicName'   : 'eu.hansolo.toolboxfx',
                 'Export-Package'        : 'eu.hansolo.toolboxfx, eu.hansolo.toolboxfx.geom, eu.hansolo.toolboxfx.font, eu.hansolo.toolboxfx.evt.type',
                 'Class-Path'            : "${project.name}-${project.version}.jar",
